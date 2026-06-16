@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "generatedAt": "2026-06-16T14:40:34.556Z",
+  "base": "main",
+  "head": "feature/fixture",
+  "summary": {
+    "purpose": "CI weakening - continue-on-error added",
+    "scope": "Fixture: ci-weakening",
+    "riskFiles": [
+      ".github/workflows/ci.yml"
+    ],
+    "categories": {
+      "code": 0,
+      "test": 0,
+      "docs": 0,
+      "ci": 1,
+      "dependency": 0,
+      "security-sensitive": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "ci-.github/workflows/ci.yml-0",
+      "severity": "high",
+      "category": "ci-weakening",
+      "title": "CI step set to continue on error",
+      "reason": "A workflow step allows failures without blocking the pipeline, which can hide regressions in agent-generated PRs.",
+      "evidence": [
+        {
+          "file": ".github/workflows/ci.yml",
+          "snippet": "continue-on-error: true",
+          "relatedConfig": "CI/workflow configuration"
+        }
+      ],
+      "suggestedAction": "Remove continue-on-error or scope it to non-critical steps with documented justification.",
+      "confidence": 0.85,
+      "repro": "git diff main...feature/fixture -- .github/workflows/ci.yml"
+    }
+  ],
+  "metadata": {
+    "analyzerCount": 1,
+    "durationMs": 0,
+    "aiReview": "skipped",
+    "aiSkipReason": "Fixture snapshot — static analysis only",
+    "staticOnly": true
+  }
+}

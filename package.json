@@ -14,6 +14,14 @@
     "dist",
     "action.yml"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simhanson123/review-mcp.git"
+  },
+  "homepage": "https://github.com/simhanson123/review-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/simhanson123/review-mcp/issues"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -21,6 +29,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
+    "fixtures": "npm run build && node dist/scripts/generate-fixture-snapshots.js",
     "prepare": "npm run build"
   },
   "keywords": [

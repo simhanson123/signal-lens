@@ -1,5 +1,9 @@
 # OpenAI Codex for Open Source — Application Plan
 
+**Apply at:** https://developers.openai.com/community/codex-for-oss
+
+**Repository:** https://github.com/simhanson123/review-mcp
+
 ## Project Positioning
 
 > `review-mcp` is an open-source maintainer automation agent that uses MCP to provide repository-level context for AI-powered pull request review, issue triage, and release workflows. It helps maintainers review agent-generated PRs by detecting CI weakening, duplicated utilities, security boundary regressions, missing tests, and release risks with evidence-based findings.

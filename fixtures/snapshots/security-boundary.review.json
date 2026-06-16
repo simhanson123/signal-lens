@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "generatedAt": "2026-06-16T14:40:34.706Z",
+  "base": "main",
+  "head": "feature/fixture",
+  "summary": {
+    "purpose": "Security boundary - untrusted PR body in workflow",
+    "scope": "Fixture: security-boundary",
+    "riskFiles": [
+      ".github/workflows/ai-review.yml"
+    ],
+    "categories": {
+      "code": 1,
+      "test": 0,
+      "docs": 0,
+      "ci": 0,
+      "dependency": 0,
+      "security-sensitive": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "sec-.github/workflows/ai-review.yml-0",
+      "severity": "blocker",
+      "category": "security-boundary",
+      "title": "Untrusted GitHub event content in workflow",
+      "reason": "PR/issue body or title flows into a workflow expression. This is a prompt/shell injection vector when combined with AI or script execution.",
+      "evidence": [
+        {
+          "file": ".github/workflows/ai-review.yml",
+          "snippet": "run: review-bot --prompt \"${{ github.event.pull_request.body }}\""
+        }
+      ],
+      "suggestedAction": "Sanitize or avoid using untrusted event content in run steps, prompts, or shell commands.",
+      "confidence": 0.95,
+      "repro": "git diff main...feature/fixture -- .github/workflows/ai-review.yml"
+    }
+  ],
+  "metadata": {
+    "analyzerCount": 1,
+    "durationMs": 0,
+    "aiReview": "skipped",
+    "aiSkipReason": "Fixture snapshot — static analysis only",
+    "staticOnly": true
+  }
+}

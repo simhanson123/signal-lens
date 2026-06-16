@@ -57,7 +57,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: review-mcp/review-mcp/action.yml@v0.1.0
+      - uses: review-mcp/review-mcp/action.yml@v0.2.0
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
@@ -129,7 +129,7 @@ Copy [`.review-mcp.yml`](.review-mcp.yml) to your repository root to customize a
 ## Development
 
 ```bash
-git clone https://github.com/review-mcp/review-mcp.git
+git clone https://github.com/simhanson123/review-mcp.git
 cd review-mcp
 npm install
 npm test

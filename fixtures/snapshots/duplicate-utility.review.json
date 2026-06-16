@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "generatedAt": "2026-06-16T14:40:34.705Z",
+  "base": "main",
+  "head": "feature/fixture",
+  "summary": {
+    "purpose": "Duplicate utility - new helper function",
+    "scope": "Fixture: duplicate-utility",
+    "riskFiles": [
+      "src/utils/date.ts"
+    ],
+    "categories": {
+      "code": 0,
+      "test": 0,
+      "docs": 0,
+      "ci": 0,
+      "dependency": 0,
+      "security-sensitive": 0
+    }
+  },
+  "findings": [],
+  "metadata": {
+    "analyzerCount": 1,
+    "durationMs": 0,
+    "aiReview": "skipped",
+    "aiSkipReason": "Fixture snapshot — static analysis only",
+    "staticOnly": true
+  }
+}

@@ -9,6 +9,8 @@ export { getDefaultProvider } from "./providers/index.js";
 export { indexRepository, findSymbol } from "./indexer/symbols.js";
 export { buildRepoSummary } from "./indexer/repo-summary.js";
 export { startMcpServer } from "./mcp/server.js";
+export { loadFeedback, recordFeedback, filterByFeedback } from "./memory/feedback.js";
+export { draftReleaseNotes, listMergedPrs } from "./release/assistant.js";
 export { defaultAnalyzers } from "./analyzers/index.js";
 export type {
   Analyzer,
