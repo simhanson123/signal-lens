@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run review-mcp
-        uses: review-mcp/review-mcp/action.yml@v0.1.0
+        uses: review-mcp/review-mcp/action.yml@v0.2.0
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}

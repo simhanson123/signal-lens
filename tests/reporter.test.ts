@@ -25,7 +25,13 @@ const sampleResult: ReviewResult = {
       confidence: 0.85,
     },
   ],
-  metadata: { analyzerCount: 3, durationMs: 42 },
+  metadata: {
+    analyzerCount: 3,
+    durationMs: 42,
+    aiReview: "skipped",
+    aiSkipReason: "OPENAI_API_KEY is not set",
+    staticOnly: true,
+  },
 };
 
 describe("reporter", () => {

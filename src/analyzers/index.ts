@@ -9,4 +9,6 @@ export const defaultAnalyzers: Analyzer[] = [
   securityBoundaryAnalyzer,
 ];
 
+export { createAiReviewAnalyzer } from "./ai-review.js";
+
 export { ciWeakeningAnalyzer, duplicateUtilityAnalyzer, securityBoundaryAnalyzer };

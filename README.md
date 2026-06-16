@@ -67,15 +67,20 @@ jobs:
 
 See [`.github/workflows/review-mcp.yml`](.github/workflows/review-mcp.yml) for the full example.
 
-## v0.1 Features
+## Features (v0.2)
 
 - **GitHub Action** — runs on `pull_request` events
 - **CLI** — `review-mcp review --base main --head HEAD`
-- **Diff summary** — change purpose, scope, risk file list
-- **CI weakening detection** — workflow and quality gate changes
-- **Duplicate utility detection** — new symbols vs existing codebase
-- **Security boundary checks** — secrets, untrusted input, permissions
-- **Markdown + JSON output** — human-readable reports and machine artifacts
+- **MCP Context Server** — `review-mcp mcp` (resources, tools, prompts)
+- **Symbol indexer** — `review-mcp index` for repository context
+- **`.review-mcp.yml`** — per-project review policy
+- **Static analyzers** — CI weakening, duplicate utility, security boundary
+- **Optional AI review** — runs when `OPENAI_API_KEY` is set; skips gracefully otherwise
+- **Output formats** — Markdown, JSON, SARIF
+
+### No API key? No problem.
+
+`review-mcp` works fully without an OpenAI API key. Static analyzers run by default. AI review is attempted only when `OPENAI_API_KEY` is set and `ai-review: auto` in config. Use `--static-only` to force static-only mode.
 
 ## Output Format
 
@@ -89,13 +94,37 @@ Every finding includes:
 | Suggested action | What the maintainer should do |
 | Confidence | Model/analyzer confidence score |
 
+### MCP Server
+
+Add to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "review-mcp": {
+      "command": "npx",
+      "args": ["-y", "review-mcp", "mcp"],
+      "cwd": "/path/to/your/repo"
+    }
+  }
+}
+```
+
+**Resources:** `repo://summary`, `repo://symbols/{name}`, `repo://architecture/rules`
+
+**Tools:** `review_pr`, `scan_ci_weakening`, `find_duplicate_utility`, `trace_security_boundary`
+
+### Configuration
+
+Copy [`.review-mcp.yml`](.review-mcp.yml) to your repository root to customize analyzers, AI model, and architecture rules.
+
 ## Roadmap
 
 | Version | Focus |
 |---------|-------|
-| **v0.1** (current) | GitHub Action, CLI, static analyzers |
-| **v0.2** | MCP Context Server, feedback memory, SARIF |
-| **v0.3** | Release assistant, issue triage, GitHub App |
+| **v0.2** (current) | MCP server, SARIF, symbol indexer, optional AI |
+| **v0.3** | Feedback memory, release assistant, issue triage |
+| **v0.4** | GitHub App, multi-provider |
 
 ## Development
 

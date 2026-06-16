@@ -52,6 +52,8 @@ export interface ReviewSummary {
   categories: Record<ChangeCategory, number>;
 }
 
+export type AiReviewStatus = "completed" | "skipped" | "disabled";
+
 export interface ReviewResult {
   version: string;
   generatedAt: string;
@@ -62,6 +64,9 @@ export interface ReviewResult {
   metadata: {
     analyzerCount: number;
     durationMs: number;
+    aiReview: AiReviewStatus;
+    aiSkipReason?: string;
+    staticOnly: boolean;
   };
 }
 
@@ -69,8 +74,9 @@ export interface ReviewOptions {
   base: string;
   head: string;
   repoRoot?: string;
-  output?: "markdown" | "json" | "both";
+  output?: "markdown" | "json" | "sarif" | "both";
   outputFile?: string;
+  noAi?: boolean;
 }
 
 export interface Analyzer {

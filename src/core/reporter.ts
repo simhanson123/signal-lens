@@ -1,4 +1,5 @@
 import { writeFileSync } from "node:fs";
+import { toSarif } from "./sarif.js";
 import type { Finding, ReviewResult } from "./types.js";
 
 const SEVERITY_ORDER = ["blocker", "high", "medium", "low"] as const;
@@ -20,6 +21,10 @@ export function toMarkdown(result: ReviewResult): string {
   lines.push("");
   lines.push(`**Base:** \`${result.base}\` → **Head:** \`${result.head}\``);
   lines.push(`**Generated:** ${result.generatedAt}`);
+  lines.push(`**Mode:** ${result.metadata.staticOnly ? "static analysis" : "static + AI"}`);
+  if (result.metadata.aiSkipReason) {
+    lines.push(`**AI:** ${result.metadata.aiReview} — ${result.metadata.aiSkipReason}`);
+  }
   lines.push("");
 
   lines.push("### Summary");
@@ -35,9 +40,13 @@ export function toMarkdown(result: ReviewResult): string {
   if (findings.length === 0) {
     lines.push("### Findings");
     lines.push("");
-    lines.push("No issues detected by static analyzers.");
+    lines.push("No issues detected.");
     lines.push("");
-    lines.push("> AI-powered deep review requires `OPENAI_API_KEY` (v0.1+). Static analysis completed successfully.");
+    if (result.metadata.aiReview === "skipped") {
+      lines.push(`> AI review skipped: ${result.metadata.aiSkipReason}`);
+    } else if (result.metadata.aiReview === "disabled") {
+      lines.push("> AI review disabled. Static analysis completed.");
+    }
     return lines.join("\n");
   }
 
@@ -95,17 +104,20 @@ export function toJson(result: ReviewResult): string {
 
 export function writeOutput(
   result: ReviewResult,
-  format: "markdown" | "json" | "both",
+  format: "markdown" | "json" | "sarif" | "both",
   outputFile?: string
-): { markdown?: string; json?: string } {
+): { markdown?: string; json?: string; sarif?: string } {
   const markdown = format === "markdown" || format === "both" ? toMarkdown(result) : undefined;
   const json = format === "json" || format === "both" ? toJson(result) : undefined;
+  const sarif = format === "sarif" ? toSarif(result) : undefined;
 
   if (outputFile) {
     if (format === "json") {
       writeFileSync(outputFile, json!, "utf-8");
     } else if (format === "markdown") {
       writeFileSync(outputFile, markdown!, "utf-8");
+    } else if (format === "sarif") {
+      writeFileSync(outputFile, sarif!, "utf-8");
     } else {
       const base = outputFile.replace(/\.[^.]+$/, "");
       writeFileSync(`${base}.md`, markdown!, "utf-8");
@@ -113,5 +125,5 @@ export function writeOutput(
     }
   }
 
-  return { markdown, json };
+  return { markdown, json, sarif };
 }
