@@ -1,31 +1,38 @@
 import { AnthropicProvider } from "./anthropic.js";
 import { MockProvider } from "./mock.js";
+import { OllamaProvider } from "./ollama.js";
 import { OpenAiProvider } from "./openai.js";
 import type { AiProvider } from "./types.js";
 
 const providers: AiProvider[] = [
   new OpenAiProvider(),
   new AnthropicProvider(),
+  new OllamaProvider(),
   new MockProvider(),
 ];
 
-export function getProvider(name?: string): AiProvider {
-  const selected = name ?? process.env.REVIEW_MCP_PROVIDER ?? "openai";
+const AUTO_ORDER = ["openai", "anthropic", "ollama", "mock"];
 
-  const found = providers.find((p) => p.name === selected);
-  if (found) return found;
-
-  return providers[0];
+export function getProvider(name: string): AiProvider {
+  return providers.find((p) => p.name === name) ?? providers[0];
 }
 
-export function getAvailableProvider(preferred?: string): AiProvider | null {
-  if (preferred) {
-    const p = getProvider(preferred);
+export function getAvailableProvider(
+  preferred?: string,
+  configProvider: string = "auto"
+): AiProvider | null {
+  const pref = preferred ?? process.env.REVIEW_MCP_PROVIDER ?? configProvider;
+
+  if (pref !== "auto") {
+    const p = getProvider(pref);
     if (p.isAvailable()) return p;
+    if (pref === "ollama") return p; // reachability checked at review time
+    return null;
   }
 
-  for (const p of providers) {
-    if (p.isAvailable()) return p;
+  for (const name of AUTO_ORDER) {
+    const p = getProvider(name);
+    if (name === "ollama" || p.isAvailable()) return p;
   }
   return null;
 }

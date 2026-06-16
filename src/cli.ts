@@ -17,11 +17,12 @@ import { listProviders } from "./providers/registry.js";
 import { draftReleaseNotes, getCurrentReleaseState, listMergedPrs } from "./release/assistant.js";
 import { generateFixDraft } from "./autofix/draft.js";
 import { startMcpServer } from "./mcp/server.js";
+import { postInlineReviewComments } from "./github/inline-comments.js";
 import { runReview } from "./orchestrator/review.js";
 
 const program = new Command();
 
-program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.0.0");
+program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.1.0");
 
 program
   .command("review")
@@ -35,6 +36,8 @@ program
   .option("--pr <number>", "GitHub PR number for enriched metadata", (v) => Number(v))
   .option("--owner <owner>", "GitHub owner (with --pr)")
   .option("--github-repo <repo>", "GitHub repo name (with --pr)")
+  .option("--post-inline", "Post inline PR comments for findings with file+line evidence")
+  .option("--max-inline <n>", "Max inline comments to post", (v) => Number(v))
   .action(async (opts) => {
     const format = opts.output as "markdown" | "json" | "sarif" | "both" | "all";
     const result = await runReview({
@@ -55,6 +58,21 @@ program
       if (out.markdown) console.log(out.markdown);
       if (out.json && (format === "json" || format === "both" || format === "all")) console.log(out.json);
       if (out.sarif) console.log(out.sarif);
+    }
+
+    if (opts.postInline && opts.pr && opts.owner && opts.githubRepo) {
+      const commitSha = resolveCommitSha(opts.repo, opts.head);
+      const inline = await postInlineReviewComments({
+        owner: opts.owner,
+        repo: opts.githubRepo,
+        pullNumber: opts.pr,
+        commitSha,
+        findings: result.findings,
+        maxComments: opts.maxInline,
+      });
+      console.error(
+        JSON.stringify({ inlineComments: inline }, null, 2)
+      );
     }
 
     process.exit(result.findings.some((f) => f.severity === "blocker") ? 1 : 0);
@@ -205,5 +223,36 @@ program
   .command("providers")
   .description("List AI providers and availability")
   .action(() => console.log(JSON.stringify(listProviders(), null, 2)));
+
+program
+  .command("post-inline")
+  .description("Post inline review comments on a GitHub PR")
+  .requiredOption("--owner <owner>", "GitHub owner")
+  .requiredOption("--github-repo <repo>", "GitHub repo name")
+  .requiredOption("--pr <number>", "Pull request number", (v) => Number(v))
+  .requiredOption("--commit <sha>", "Head commit SHA for the PR")
+  .option("-f, --report-file <path>", "Review JSON report file")
+  .option("--max-inline <n>", "Max inline comments to post", (v) => Number(v))
+  .action(async (opts) => {
+    const result = await postInlineReviewComments({
+      owner: opts.owner,
+      repo: opts.githubRepo,
+      pullNumber: opts.pr,
+      commitSha: opts.commit,
+      reportFile: opts.reportFile,
+      maxComments: opts.maxInline,
+    });
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.errors.length > 0 && result.posted === 0 ? 1 : 0);
+  });
+
+function resolveCommitSha(repoRoot: string, ref: string): string {
+  if (/^[0-9a-f]{40}$/i.test(ref)) return ref;
+  try {
+    return execSync(`git rev-parse ${ref}`, { cwd: repoRoot, encoding: "utf-8" }).trim();
+  } catch {
+    return ref;
+  }
+}
 
 program.parse();

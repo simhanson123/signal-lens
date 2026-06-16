@@ -45,5 +45,6 @@ describe("OpenAiProvider", () => {
     const providers = listProviders();
     expect(providers.some((p) => p.name === "openai")).toBe(true);
     expect(providers.some((p) => p.name === "anthropic")).toBe(true);
+    expect(providers.some((p) => p.name === "ollama")).toBe(true);
   });
 });

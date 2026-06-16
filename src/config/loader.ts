@@ -20,7 +20,13 @@ function mergeConfig(
 ): ReviewMcpConfig {
   return {
     version: override.version ?? base.version,
-    ai: { ...base.ai, ...override.ai },
+    ai: {
+      ...base.ai,
+      ...override.ai,
+      ollama: {
+        baseUrl: override.ai?.ollama?.baseUrl ?? base.ai.ollama?.baseUrl ?? "http://localhost:11434",
+      },
+    },
     analyzers: { ...base.analyzers, ...override.analyzers },
     rules: {
       architecture: override.rules?.architecture ?? base.rules.architecture,

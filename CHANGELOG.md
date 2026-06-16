@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0 — 2026-06-17
+
+### Added
+- **Ollama provider** — local LLM review without API keys (`ai.provider: ollama`)
+- **Inline PR comments** — `review-mcp post-inline` and `review --post-inline`
+- **Test coverage analyzer** — detects source changes without test updates
+- GitHub Action `post-inline-comments` input
+
+### Changed
+- Auto provider order: OpenAI → Anthropic → Ollama → mock
+- Default analyzers include `test-coverage`
+
 ## 1.0.0 — 2026-06-16
 
 ### Added

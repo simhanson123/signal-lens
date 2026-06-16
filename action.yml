@@ -26,6 +26,10 @@ inputs:
     description: "Post review as PR comment (requires write permissions in separate job)"
     required: false
     default: "false"
+  post-inline-comments:
+    description: "Post inline comments on specific lines (findings with file+line evidence)"
+    required: false
+    default: "false"
   fail-on-blocker:
     description: "Fail the review step when blocker findings are detected"
     required: false
@@ -59,7 +63,7 @@ runs:
 
     - name: Install review-mcp
       shell: bash
-      run: npm install -g review-mcp@1.0.0 || npm install -g .
+      run: npm install -g review-mcp@1.1.0 || npm install -g .
 
     - name: Index repository symbols
       shell: bash
@@ -129,3 +133,22 @@ runs:
             issue_number: context.issue.number,
             body: report
           });
+
+    - name: Post inline PR comments
+      if: inputs.post-inline-comments == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        JSON_PATH: ${{ inputs.output-file }}.json
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      run: |
+        if [ ! -f "$JSON_PATH" ]; then
+          echo "No JSON report at $JSON_PATH — skipping inline comments"
+          exit 0
+        fi
+        review-mcp post-inline \
+          --owner "${{ github.repository_owner }}" \
+          --github-repo "${{ github.event.repository.name }}" \
+          --pr "${{ github.event.pull_request.number }}" \
+          --commit "$HEAD_SHA" \
+          --report-file "$JSON_PATH"

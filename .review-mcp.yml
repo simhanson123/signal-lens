@@ -2,16 +2,23 @@ version: 1
 
 ai:
   enabled: true
+  provider: auto
   model: gpt-4o-mini
   perspectives:
     - security
     - architecture
     - correctness
+  # Local LLM — no API key required:
+  # provider: ollama
+  # model: qwen2.5-coder:7b
+  # ollama:
+  #   baseUrl: http://localhost:11434
 
 analyzers:
   ci-weakening: true
   duplicate-utility: true
   security-boundary: true
+  test-coverage: true
   ai-review: auto
 
 rules:

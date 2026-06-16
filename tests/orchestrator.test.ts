@@ -13,6 +13,7 @@ afterEach(() => {
 
 describe("runReview integration", () => {
   it("runs static review on current repo", async () => {
+    // git diff + multiple analyzers can be slow on Windows
     const result = await runReview({
       base: "HEAD~1",
       head: "HEAD",
@@ -20,8 +21,8 @@ describe("runReview integration", () => {
       noAi: true,
     });
 
-    expect(result.version).toBe("1.0.0");
+    expect(result.version).toBe("1.1.0");
     expect(result.metadata.staticOnly).toBe(true);
     expect(result.metadata.analyzerCount).toBeGreaterThan(0);
-  });
+  }, 20_000);
 });

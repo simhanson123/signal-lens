@@ -3,6 +3,7 @@ import {
   ciWeakeningAnalyzer,
   duplicateUtilityAnalyzer,
   securityBoundaryAnalyzer,
+  testCoverageAnalyzer,
 } from "../analyzers/index.js";
 import { loadConfig, shouldRunAiReview } from "../config/loader.js";
 import { collectDiff, collectDiffWithPr } from "../core/collector.js";
@@ -65,7 +66,7 @@ export async function runReview(
 
   const aiStatus = resolveAiStatus(config, options);
   const result: ReviewResult = {
-    version: "1.0.0",
+    version: "1.1.0",
     generatedAt: new Date().toISOString(),
     base: context.base,
     head: context.head,
@@ -96,6 +97,7 @@ function buildAnalyzers(
   if (config.analyzers["ci-weakening"]) analyzers.push(ciWeakeningAnalyzer);
   if (config.analyzers["duplicate-utility"]) analyzers.push(duplicateUtilityAnalyzer);
   if (config.analyzers["security-boundary"]) analyzers.push(securityBoundaryAnalyzer);
+  if (config.analyzers["test-coverage"]) analyzers.push(testCoverageAnalyzer);
 
   if (shouldRunAiReview(config) && !options.noAi) {
     analyzers.push(createAiReviewAnalyzer(config));
@@ -112,9 +114,12 @@ function resolveAiStatus(
     return { status: "disabled", reason: "AI review disabled by configuration or --static-only flag" };
   }
 
-  const provider = getAvailableProvider(process.env.REVIEW_MCP_PROVIDER);
+  const provider = getAvailableProvider(process.env.REVIEW_MCP_PROVIDER, config.ai.provider);
   if (!provider) {
-    return { status: "skipped", reason: "No AI provider API key configured (OPENAI_API_KEY or ANTHROPIC_API_KEY)" };
+    return {
+      status: "skipped",
+      reason: "No AI provider available. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or run Ollama locally.",
+    };
   }
 
   return { status: "completed", provider: provider.name };

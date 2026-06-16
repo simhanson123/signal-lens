@@ -1,6 +1,6 @@
 # review-mcp
 
-**MCP-based AI PR review and maintainer automation agent** — v1.0.0
+**MCP-based AI PR review and maintainer automation agent** — v1.1.0
 
 Context-first PR review for open-source maintainers handling AI-generated pull requests.
 
@@ -11,6 +11,7 @@ Context-first PR review for open-source maintainers handling AI-generated pull r
 | Area | Commands / Surfaces |
 |------|---------------------|
 | PR Review | `review-mcp review`, GitHub Action, MCP `review_pr` |
+| Inline Comments | `review-mcp post-inline`, `review --post-inline` |
 | Tree-sitter Index | `review-mcp index` → SQLite symbol + import graph |
 | MCP Server | `review-mcp mcp` — 5 resources, 6 tools, 4 prompts |
 | Issue Triage | `review-mcp triage` |
@@ -18,12 +19,12 @@ Context-first PR review for open-source maintainers handling AI-generated pull r
 | Auto-fix Draft | `review-mcp fix`, `/review-mcp fix` |
 | Slash Commands | `/review-mcp explain`, `false-positive`, `fix`, `release-notes` |
 | GitHub App | `review-mcp serve` + `github-app/manifest.yml` |
-| AI Providers | OpenAI, Anthropic, mock (`REVIEW_MCP_PROVIDER`) |
+| AI Providers | OpenAI, Anthropic, **Ollama (local)**, mock |
 | Output | Markdown, JSON, SARIF (Code Scanning) |
 
 ### No API key required
 
-Static analyzers run without any API key. Set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` to enable AI review.
+Static analyzers run without any API key. For AI review without cloud APIs, use **Ollama** — a free tool that runs LLMs on your own machine.
 
 ## Quick Start
 
@@ -39,17 +40,62 @@ review-mcp review --base main --head HEAD
 # All output formats
 review-mcp review --base main --head HEAD --output all -f report
 
-# Static only
+# Static only (no AI)
 review-mcp review --base main --head HEAD --static-only
+```
+
+## Ollama (Local AI Review)
+
+[Ollama](https://ollama.com) runs open-source LLMs locally — no API key, no data sent to the cloud.
+
+```bash
+# 1. Install Ollama from https://ollama.com
+# 2. Pull a code-focused model
+ollama pull qwen2.5-coder:7b
+
+# 3. Run review with Ollama
+REVIEW_MCP_PROVIDER=ollama review-mcp review --base main --head HEAD
+```
+
+Or configure in `.review-mcp.yml`:
+
+```yaml
+ai:
+  provider: ollama
+  model: qwen2.5-coder:7b
+  ollama:
+    baseUrl: http://localhost:11434
+```
+
+Provider auto-detection order: OpenAI → Anthropic → Ollama → mock.
+
+## Inline PR Comments
+
+Post findings directly on the changed lines in a GitHub PR (requires `file` + `line` evidence):
+
+```bash
+# After generating a JSON report
+review-mcp post-inline \
+  --owner myorg \
+  --github-repo myrepo \
+  --pr 42 \
+  --commit abc123def456 \
+  --report-file report.json
+
+# Or inline during review
+review-mcp review --base main --head HEAD \
+  --pr 42 --owner myorg --github-repo myrepo \
+  --post-inline --output json -f report
 ```
 
 ## GitHub Action
 
 ```yaml
-- uses: simhanson123/review-mcp/action.yml@v1.0.0
+- uses: simhanson123/review-mcp/action.yml@v1.1.0
   with:
     output-format: all
     post-comment: "true"
+    post-inline-comments: "true"
     fail-on-blocker: "true"
 ```
 

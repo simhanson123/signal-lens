@@ -5,6 +5,7 @@ export interface AiReviewRequest {
   perspectives: string[];
   model: string;
   architectureRules: string[];
+  ollamaBaseUrl?: string;
 }
 
 export interface AiReviewResponse {
