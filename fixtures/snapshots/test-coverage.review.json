@@ -1,0 +1,60 @@
+{
+  "version": "0.2.0",
+  "generatedAt": "2026-06-16T18:06:06.593Z",
+  "base": "main",
+  "head": "feature/fixture",
+  "summary": {
+    "purpose": "Test coverage - source changed without tests",
+    "scope": "Fixture: test-coverage",
+    "riskFiles": [
+      "src/utils.ts"
+    ],
+    "categories": {
+      "code": 0,
+      "test": 0,
+      "docs": 0,
+      "ci": 0,
+      "dependency": 0,
+      "security-sensitive": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "test-missing-files",
+      "severity": "medium",
+      "category": "test-coverage",
+      "title": "Source changed without test file updates",
+      "reason": "1 source file(s) changed but no test files were added or modified. Agent-generated PRs often skip tests.",
+      "evidence": [
+        {
+          "file": "src/utils.ts"
+        }
+      ],
+      "suggestedAction": "Add or update tests covering the changed behavior.",
+      "confidence": 0.8,
+      "repro": "git diff main...feature/fixture -- src/utils.ts"
+    },
+    {
+      "id": "test-missing-parseConfig",
+      "severity": "medium",
+      "category": "test-coverage",
+      "title": "New symbol \"parseConfig\" has no corresponding test changes",
+      "reason": "A new function or utility was added without test coverage in this PR.",
+      "evidence": [
+        {
+          "file": "src/utils.ts",
+          "symbol": "parseConfig"
+        }
+      ],
+      "suggestedAction": "Add unit tests for \"parseConfig\".",
+      "confidence": 0.75
+    }
+  ],
+  "metadata": {
+    "analyzerCount": 1,
+    "durationMs": 0,
+    "aiReview": "skipped",
+    "aiSkipReason": "Fixture snapshot — static analysis only",
+    "staticOnly": true
+  }
+}

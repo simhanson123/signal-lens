@@ -1,0 +1,13 @@
+{
+  "version": "1.1.0",
+  "scenario": "Test coverage - source changed without tests",
+  "description": "Agent PR modifies source code but adds no test file changes",
+  "expectedFindings": [
+    {
+      "category": "test-coverage",
+      "severity": "medium",
+      "titleContains": "without test"
+    }
+  ],
+  "diff": "diff --git a/src/utils.ts b/src/utils.ts\n+++ b/src/utils.ts\n@@ -1,0 +2,3 @@\n+export function parseConfig(input: string) {\n+  return input.trim();\n+}\n"
+}

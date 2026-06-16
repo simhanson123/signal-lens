@@ -1,6 +1,6 @@
 # Security
 
-`review-mcp` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v0.1.
+`review-mcp` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v1.1.0.
 
 ## Principles
 
@@ -9,7 +9,8 @@
 3. **No secrets on fork PRs** — example workflow skips fork PRs
 4. **No shell execution of model output** — analyzers use pattern matching, not `eval`
 5. **Untrusted input treatment** — PR body, issue body, commit messages are untrusted
-6. **Human-in-the-loop** — no auto-merge, auto-push, or auto-release in v0.1
+6. **Human-in-the-loop** — no auto-merge, auto-push, or auto-release
+7. **Inline comments are opt-in** — `post-inline-comments` requires explicit Action input
 
 ## GitHub Token Permissions
 
@@ -28,7 +29,11 @@ permissions:
   pull-requests: write
 ```
 
-Use `post-comment: true` only when comment posting is intended. Keep review analysis in a separate step from write operations where possible.
+Use `post-comment: true` or `post-inline-comments: true` only when comment posting is intended. Keep review analysis in a separate step from write operations where possible.
+
+### Inline comments (v1.1.0)
+
+Inline comments are posted only for findings with `evidence.file` and `evidence.line`. The Action posts via `pull-requests: write` in the same job as analysis when enabled. Maximum 20 comments per run (configurable via CLI `--max-inline`).
 
 ## Fork PR Handling
 
@@ -49,9 +54,9 @@ The security-boundary analyzer flags:
 - `permissions: write-all`
 - Authentication bypass patterns
 
-## MCP Tool Boundaries (v0.2)
+## MCP Tool Boundaries
 
-Write-capable MCP tools (`record_feedback`, PR comment tools) will require explicit human approval. Tool schemas will annotate trust boundaries per MCP specification.
+Write-capable MCP tools (`record_feedback`) store maintainer feedback locally. PR comment tools require explicit CLI flags or Action inputs. Tool schemas annotate trust boundaries per MCP specification.
 
 ## Reporting Vulnerabilities
 

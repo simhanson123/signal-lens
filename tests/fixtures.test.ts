@@ -16,11 +16,13 @@ interface FixtureSnapshot {
 }
 
 import { duplicateUtilityAnalyzer } from "../src/analyzers/duplicate-utility.js";
+import { testCoverageAnalyzer } from "../src/analyzers/test-coverage.js";
 
 const ANALYZERS: Record<string, typeof ciWeakeningAnalyzer> = {
   "ci-weakening": ciWeakeningAnalyzer,
   "security-boundary": securityBoundaryAnalyzer,
   "duplicate-utility": duplicateUtilityAnalyzer,
+  "test-coverage": testCoverageAnalyzer,
 };
 
 function makeContext(diff: string, file: string): DiffContext {
@@ -49,7 +51,9 @@ function extractFileFromDiff(diff: string): string {
 
 describe("fixture snapshots", () => {
   const snapshotDir = resolve(process.cwd(), "fixtures/snapshots");
-  const files = readdirSync(snapshotDir).filter((f) => f.endsWith(".json"));
+  const files = readdirSync(snapshotDir).filter(
+    (f) => f.endsWith(".json") && !f.includes(".review.")
+  );
 
   for (const file of files) {
     const fixture = JSON.parse(

@@ -1,7 +1,7 @@
 ## review-mcp Report
 
 **Base:** `main` → **Head:** `feature/fixture`
-**Generated:** 2026-06-16T14:59:51.979Z
+**Generated:** 2026-06-16T18:06:06.591Z
 **Mode:** static analysis
 **AI:** skipped — Fixture snapshot — static analysis only
 

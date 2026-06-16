@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { ciWeakeningAnalyzer } from "../analyzers/ci-weakening.js";
 import { duplicateUtilityAnalyzer } from "../analyzers/duplicate-utility.js";
 import { securityBoundaryAnalyzer } from "../analyzers/security-boundary.js";
+import { testCoverageAnalyzer } from "../analyzers/test-coverage.js";
 import { toMarkdown } from "../core/reporter.js";
 import type { DiffContext, ReviewResult } from "../core/types.js";
 
@@ -15,6 +16,7 @@ const ANALYZERS: Record<string, typeof ciWeakeningAnalyzer> = {
   "ci-weakening": ciWeakeningAnalyzer,
   "duplicate-utility": duplicateUtilityAnalyzer,
   "security-boundary": securityBoundaryAnalyzer,
+  "test-coverage": testCoverageAnalyzer,
 };
 
 function extractFile(diff: string): string {
