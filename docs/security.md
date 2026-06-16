@@ -1,0 +1,58 @@
+# Security
+
+`review-mcp` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v0.1.
+
+## Principles
+
+1. **Read-only by default** — review jobs use `contents: read` permission
+2. **Separate write job** — PR comment posting requires explicit `pull-requests: write`
+3. **No secrets on fork PRs** — example workflow skips fork PRs
+4. **No shell execution of model output** — analyzers use pattern matching, not `eval`
+5. **Untrusted input treatment** — PR body, issue body, commit messages are untrusted
+6. **Human-in-the-loop** — no auto-merge, auto-push, or auto-release in v0.1
+
+## GitHub Token Permissions
+
+### Review job (read-only)
+
+```yaml
+permissions:
+  contents: read
+```
+
+### Comment posting (write)
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: write
+```
+
+Use `post-comment: true` only when comment posting is intended. Keep review analysis in a separate step from write operations where possible.
+
+## Fork PR Handling
+
+Fork pull requests must not receive secrets or elevated tokens. The example workflow uses:
+
+```yaml
+if: github.event.pull_request.head.repo.full_name == github.repository
+```
+
+## Detected Security Patterns
+
+The security-boundary analyzer flags:
+
+- Untrusted GitHub event content in workflow expressions
+- Hardcoded secrets and API keys
+- Dynamic code execution (`eval`, `execSync`)
+- `pull_request_target` usage
+- `permissions: write-all`
+- Authentication bypass patterns
+
+## MCP Tool Boundaries (v0.2)
+
+Write-capable MCP tools (`record_feedback`, PR comment tools) will require explicit human approval. Tool schemas will annotate trust boundaries per MCP specification.
+
+## Reporting Vulnerabilities
+
+Please report security issues privately via GitHub Security Advisories once the repository is published. Do not open public issues for undisclosed vulnerabilities.

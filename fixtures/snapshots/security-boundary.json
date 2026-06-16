@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "scenario": "Security boundary - untrusted PR body in workflow",
+  "description": "Workflow passes PR body to shell command",
+  "expectedFindings": [
+    {
+      "category": "security-boundary",
+      "severity": "blocker",
+      "titleContains": "Untrusted GitHub event content"
+    }
+  ],
+  "diff": "diff --git a/.github/workflows/ai-review.yml b/.github/workflows/ai-review.yml\n+++ b/.github/workflows/ai-review.yml\n@@ -10,0 +11,1 @@\n+        run: review-bot --prompt \"${{ github.event.pull_request.body }}\"\n"
+}

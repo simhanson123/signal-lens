@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "scenario": "Duplicate utility - new helper function",
+  "description": "Agent adds a new formatDate utility that may duplicate existing code",
+  "expectedFindings": [
+    {
+      "category": "duplicate-utility",
+      "severity": "low",
+      "titleContains": "formatDate"
+    }
+  ],
+  "diff": "diff --git a/src/utils/date.ts b/src/utils/date.ts\n+++ b/src/utils/date.ts\n@@ -0,0 +1,3 @@\n+export function formatDateValue(input: Date): string {\n+  return input.toISOString().split('T')[0];\n+}\n"
+}

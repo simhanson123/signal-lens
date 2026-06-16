@@ -1,0 +1,109 @@
+name: "review-mcp"
+description: "Context-first PR review with CI weakening, duplicate utility, and security boundary checks"
+author: "review-mcp contributors"
+branding:
+  icon: "search"
+  color: "blue"
+
+inputs:
+  base:
+    description: "Base git ref for comparison"
+    required: false
+    default: "${{ github.event.pull_request.base.sha }}"
+  head:
+    description: "Head git ref for comparison"
+    required: false
+    default: "${{ github.event.pull_request.head.sha }}"
+  output-format:
+    description: "Output format: markdown, json, or both"
+    required: false
+    default: "markdown"
+  output-file:
+    description: "Optional file path for review output"
+    required: false
+    default: "review-mcp-report.md"
+  post-comment:
+    description: "Post review as PR comment (requires write permissions)"
+    required: false
+    default: "false"
+  github-token:
+    description: "GitHub token for posting comments"
+    required: false
+    default: "${{ github.token }}"
+
+outputs:
+  report-path:
+    description: "Path to the generated review report"
+    value: ${{ steps.review.outputs.report-path }}
+  finding-count:
+    description: "Total number of findings"
+    value: ${{ steps.review.outputs.finding-count }}
+  has-blocker:
+    description: "Whether any blocker findings were detected"
+    value: ${{ steps.review.outputs.has-blocker }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Install review-mcp
+      shell: bash
+      run: npm install -g review-mcp@0.1.0 || npm install -g .
+
+    - name: Run review
+      id: review
+      shell: bash
+      env:
+        BASE_REF: ${{ inputs.base }}
+        HEAD_REF: ${{ inputs.head }}
+        OUTPUT_FORMAT: ${{ inputs.output-format }}
+        OUTPUT_FILE: ${{ inputs.output-file }}
+      run: |
+        review-mcp review \
+          --base "$BASE_REF" \
+          --head "$HEAD_REF" \
+          --output "$OUTPUT_FORMAT" \
+          --output-file "$OUTPUT_FILE" || true
+
+        FINDING_COUNT=$(node -e "
+          const fs = require('fs');
+          const base = process.env.OUTPUT_FILE.replace(/\.[^.]+$/, '');
+          const jsonPath = process.env.OUTPUT_FORMAT === 'json' ? process.env.OUTPUT_FILE : base + '.json';
+          if (!fs.existsSync(jsonPath)) { console.log('0'); process.exit(0); }
+          const r = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+          console.log(r.findings.length);
+        ")
+
+        HAS_BLOCKER=$(node -e "
+          const fs = require('fs');
+          const base = process.env.OUTPUT_FILE.replace(/\.[^.]+$/, '');
+          const jsonPath = process.env.OUTPUT_FORMAT === 'json' ? process.env.OUTPUT_FILE : base + '.json';
+          if (!fs.existsSync(jsonPath)) { console.log('false'); process.exit(0); }
+          const r = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+          console.log(r.findings.some(f => f.severity === 'blocker') ? 'true' : 'false');
+        ")
+
+        echo "report-path=$OUTPUT_FILE" >> "$GITHUB_OUTPUT"
+        echo "finding-count=$FINDING_COUNT" >> "$GITHUB_OUTPUT"
+        echo "has-blocker=$HAS_BLOCKER" >> "$GITHUB_OUTPUT"
+
+    - name: Post PR comment
+      if: inputs.post-comment == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      env:
+        REPORT_FILE: ${{ inputs.output-file }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync(process.env.REPORT_FILE, 'utf8');
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: report
+          });
