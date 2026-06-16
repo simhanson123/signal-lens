@@ -1,5 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { getDatabase } from "./database.js";
 
 export interface FeedbackEntry {
   id: string;
@@ -10,60 +9,57 @@ export interface FeedbackEntry {
   recordedBy?: string;
 }
 
-export interface FeedbackStore {
-  version: number;
-  entries: FeedbackEntry[];
-}
+export function loadFeedback(repoRoot: string): FeedbackEntry[] {
+  const db = getDatabase(repoRoot);
+  const rows = db
+    .prepare("SELECT id, finding_id, type, reason, recorded_at, recorded_by FROM feedback ORDER BY recorded_at DESC")
+    .all() as Array<{
+    id: string;
+    finding_id: string;
+    type: FeedbackEntry["type"];
+    reason: string | null;
+    recorded_at: string;
+    recorded_by: string | null;
+  }>;
 
-const STORE_DIR = ".review-mcp";
-const STORE_FILE = "feedback.json";
-
-export function getStorePath(repoRoot: string): string {
-  return resolve(repoRoot, STORE_DIR, STORE_FILE);
-}
-
-export function loadFeedback(repoRoot: string): FeedbackStore {
-  const path = getStorePath(repoRoot);
-
-  if (!existsSync(path)) {
-    return { version: 1, entries: [] };
-  }
-
-  return JSON.parse(readFileSync(path, "utf-8")) as FeedbackStore;
-}
-
-export function saveFeedback(repoRoot: string, store: FeedbackStore): void {
-  const dir = resolve(repoRoot, STORE_DIR);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-  writeFileSync(getStorePath(repoRoot), JSON.stringify(store, null, 2));
+  return rows.map((r) => ({
+    id: r.id,
+    findingId: r.finding_id,
+    type: r.type,
+    reason: r.reason ?? undefined,
+    recordedAt: r.recorded_at,
+    recordedBy: r.recorded_by ?? undefined,
+  }));
 }
 
 export function recordFeedback(
   repoRoot: string,
   entry: Omit<FeedbackEntry, "id" | "recordedAt">
 ): FeedbackEntry {
-  const store = loadFeedback(repoRoot);
+  const db = getDatabase(repoRoot);
   const full: FeedbackEntry = {
     ...entry,
-    id: `fb-${Date.now()}`,
+    id: `fb-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     recordedAt: new Date().toISOString(),
   };
-  store.entries.push(full);
-  saveFeedback(repoRoot, store);
+
+  db.prepare(
+    `INSERT INTO feedback (id, finding_id, type, reason, recorded_at, recorded_by)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(full.id, full.findingId, full.type, full.reason ?? null, full.recordedAt, full.recordedBy ?? null);
+
   return full;
 }
 
-export function filterByFeedback(
-  findings: Array<{ id: string; category: string; title: string }>,
-  store: FeedbackStore
-): typeof findings {
+export function filterByFeedback<T extends { id: string; category: string; title: string }>(
+  findings: T[],
+  repoRoot: string
+): T[] {
+  const entries = loadFeedback(repoRoot);
   const suppressed = new Set(
-    store.entries
+    entries
       .filter((e) => e.type === "false-positive" || e.type === "ignored-rule")
       .map((e) => e.findingId)
   );
-
   return findings.filter((f) => !suppressed.has(f.id));
 }

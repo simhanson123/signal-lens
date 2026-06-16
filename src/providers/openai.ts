@@ -1,12 +1,9 @@
 import type { Finding } from "../core/types.js";
 import type { AiProvider, AiReviewRequest, AiReviewResponse } from "./types.js";
 
-const SYSTEM_PROMPT = `You are a maintainer-level PR reviewer for open-source projects.
-Analyze the provided diff and repository context. Return ONLY a JSON array of findings.
-Each finding must have: severity (blocker|high|medium|low), category, title, reason,
-suggestedAction, confidence (0-1), evidence (array of {file, line?, snippet?}).
-Focus on issues diff-only review misses: CI weakening, duplicate utilities, security boundaries, missing tests.
-Report only actionable issues with evidence. Return [] if no issues found.`;
+const SYSTEM_PROMPT = `You are a maintainer-level PR reviewer. Return ONLY JSON: {"findings":[...]}
+Each finding: severity (blocker|high|medium|low), category, title, reason, suggestedAction, confidence (0-1), evidence ([{file,line?,snippet?}]).
+Report only actionable issues with evidence. Return empty array if none.`;
 
 export class OpenAiProvider implements AiProvider {
   name = "openai";
@@ -21,14 +18,31 @@ export class OpenAiProvider implements AiProvider {
 
   async review(request: AiReviewRequest): Promise<AiReviewResponse> {
     if (!this.isAvailable()) {
-      return {
-        findings: [],
-        skipped: true,
-        skipReason: this.unavailableReason(),
-      };
+      return { findings: [], skipped: true, skipReason: this.unavailableReason() };
     }
 
-    const userPrompt = buildUserPrompt(request);
+    const allFindings: Finding[] = [];
+    let tokensUsed = 0;
+
+    for (const perspective of request.perspectives) {
+      const response = await this.callPerspective(request, perspective);
+      tokensUsed += response.tokens ?? 0;
+      allFindings.push(...response.findings);
+    }
+
+    return {
+      findings: dedupeFindings(allFindings),
+      skipped: false,
+      model: request.model,
+      tokensUsed,
+    };
+  }
+
+  private async callPerspective(
+    request: AiReviewRequest,
+    perspective: string
+  ): Promise<{ findings: Finding[]; tokens: number }> {
+    const userPrompt = buildUserPrompt(request, perspective);
 
     try {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -49,12 +63,7 @@ export class OpenAiProvider implements AiProvider {
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        return {
-          findings: [],
-          skipped: true,
-          skipReason: `OpenAI API error (${response.status}): ${errText.slice(0, 200)}`,
-        };
+        return { findings: [], tokens: 0 };
       }
 
       const data = (await response.json()) as {
@@ -62,82 +71,49 @@ export class OpenAiProvider implements AiProvider {
         usage?: { total_tokens?: number };
       };
 
-      const content = data.choices?.[0]?.message?.content ?? "[]";
-      const findings = parseFindings(content);
+      const content = data.choices?.[0]?.message?.content ?? '{"findings":[]}';
+      const findings = parseFindings(content, perspective);
 
-      return {
-        findings,
-        skipped: false,
-        model: request.model,
-        tokensUsed: data.usage?.total_tokens,
-      };
-    } catch (error) {
-      return {
-        findings: [],
-        skipped: true,
-        skipReason: error instanceof Error ? error.message : String(error),
-      };
+      return { findings, tokens: data.usage?.total_tokens ?? 0 };
+    } catch {
+      return { findings: [], tokens: 0 };
     }
   }
 }
 
-function buildUserPrompt(request: AiReviewRequest): string {
-  const { context, perspectives, architectureRules } = request;
-
-  const fileList = context.changedFiles
-    .map((f) => `- ${f.path} (${f.category}, +${f.additions}/-${f.deletions})`)
-    .join("\n");
-
-  const rules =
-    architectureRules.length > 0
-      ? architectureRules.map((r) => `- ${r}`).join("\n")
-      : "(none configured)";
-
+function buildUserPrompt(request: AiReviewRequest, perspective: string): string {
   const truncatedDiff =
-    context.diff.length > 12000
-      ? context.diff.slice(0, 12000) + "\n... [diff truncated]"
-      : context.diff;
+    request.context.diff.length > 10000
+      ? request.context.diff.slice(0, 10000) + "\n... [truncated]"
+      : request.context.diff;
 
   return JSON.stringify({
-    task: "Review this pull request diff",
-    perspectives,
-    changedFiles: fileList,
-    architectureRules: rules,
+    perspective,
+    architectureRules: request.architectureRules,
+    changedFiles: request.context.changedFiles.map((f) => ({
+      path: f.path,
+      category: f.category,
+      additions: f.additions,
+      deletions: f.deletions,
+    })),
+    prSummary: request.context.summary,
     diff: truncatedDiff,
-    outputSchema: {
-      findings: [
-        {
-          severity: "blocker|high|medium|low",
-          category: "string",
-          title: "string",
-          reason: "string",
-          suggestedAction: "string",
-          confidence: "0-1",
-          evidence: [{ file: "string", line: "number?", snippet: "string?" }],
-        },
-      ],
-    },
   });
 }
 
-function parseFindings(content: string): Finding[] {
+function parseFindings(content: string, perspective: string): Finding[] {
   try {
-    const parsed = JSON.parse(content) as {
-      findings?: Array<Partial<Finding>>;
-    };
-
-    const raw = Array.isArray(parsed)
-      ? (parsed as Array<Partial<Finding>>)
-      : (parsed.findings ?? []);
+    const parsed = JSON.parse(content) as { findings?: Array<Partial<Finding>> };
+    const raw = parsed.findings ?? [];
 
     return raw
       .filter((f) => f.title && f.severity)
       .map((f, i) => ({
-        id: f.id ?? `ai-${i}`,
+        id: f.id ?? `ai-${perspective}-${i}`,
         severity: validateSeverity(f.severity),
-        category: f.category ?? "ai-review",
+        category: f.category ?? `ai-${perspective}`,
         title: f.title!,
-        reason: f.reason ?? "AI-detected issue",
+        reason: f.reason ?? `${perspective} perspective flagged this issue`,
         evidence: f.evidence ?? [],
         suggestedAction: f.suggestedAction ?? "Review and address if confirmed",
         confidence: typeof f.confidence === "number" ? f.confidence : 0.6,
@@ -154,4 +130,14 @@ function validateSeverity(value: unknown): Finding["severity"] {
     return value as Finding["severity"];
   }
   return "medium";
+}
+
+function dedupeFindings(findings: Finding[]): Finding[] {
+  const seen = new Set<string>();
+  return findings.filter((f) => {
+    const key = `${f.title}:${f.evidence[0]?.file ?? ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

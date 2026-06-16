@@ -45,11 +45,23 @@ export interface DiffContext {
   summary: string;
 }
 
+export interface PrContext {
+  number?: number;
+  title?: string;
+  body?: string;
+  author?: string;
+  labels: string[];
+  ciStatus?: "success" | "failure" | "pending" | "unknown";
+  url?: string;
+}
+
 export interface ReviewSummary {
   purpose: string;
   scope: string;
   riskFiles: string[];
   categories: Record<ChangeCategory, number>;
+  prTitle?: string;
+  ciStatus?: string;
 }
 
 export type AiReviewStatus = "completed" | "skipped" | "disabled";
@@ -61,22 +73,33 @@ export interface ReviewResult {
   head: string;
   summary: ReviewSummary;
   findings: Finding[];
+  pr?: PrContext;
   metadata: {
     analyzerCount: number;
     durationMs: number;
     aiReview: AiReviewStatus;
     aiSkipReason?: string;
     staticOnly: boolean;
+    provider?: string;
+    repoContextUsed?: boolean;
   };
+}
+
+export interface ReviewPrOptions {
+  owner: string;
+  repo: string;
+  pullNumber: number;
+  token?: string;
 }
 
 export interface ReviewOptions {
   base: string;
   head: string;
   repoRoot?: string;
-  output?: "markdown" | "json" | "sarif" | "both";
+  output?: "markdown" | "json" | "sarif" | "both" | "all";
   outputFile?: string;
   noAi?: boolean;
+  pr?: ReviewPrOptions;
 }
 
 export interface Analyzer {

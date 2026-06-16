@@ -1,21 +1,17 @@
 import { existsSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  filterByFeedback,
-  loadFeedback,
-  recordFeedback,
-} from "../src/memory/feedback.js";
+import { resetDatabase } from "../src/memory/database.js";
+import { filterByFeedback, loadFeedback, recordFeedback } from "../src/memory/feedback.js";
 
 const STORE = resolve(process.cwd(), ".review-mcp");
 
 afterEach(() => {
-  if (existsSync(STORE)) {
-    rmSync(STORE, { recursive: true, force: true });
-  }
+  resetDatabase();
+  if (existsSync(STORE)) rmSync(STORE, { recursive: true, force: true });
 });
 
-describe("feedback memory", () => {
+describe("feedback memory (sqlite)", () => {
   it("records and loads false-positive entries", () => {
     recordFeedback(process.cwd(), {
       findingId: "ci-1",
@@ -24,22 +20,17 @@ describe("feedback memory", () => {
     });
 
     const store = loadFeedback(process.cwd());
-    expect(store.entries).toHaveLength(1);
-    expect(store.entries[0].type).toBe("false-positive");
+    expect(store).toHaveLength(1);
+    expect(store[0].type).toBe("false-positive");
   });
 
   it("filters suppressed findings", () => {
-    recordFeedback(process.cwd(), {
-      findingId: "sec-1",
-      type: "false-positive",
-    });
+    recordFeedback(process.cwd(), { findingId: "sec-1", type: "false-positive" });
 
-    const store = loadFeedback(process.cwd());
     const filtered = filterByFeedback(
       [{ id: "sec-1", category: "security", title: "test" }],
-      store
+      process.cwd()
     );
-
     expect(filtered).toHaveLength(0);
   });
 });

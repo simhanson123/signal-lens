@@ -8,6 +8,7 @@ export interface SymbolInfo {
   file: string;
   line: number;
   signature?: string;
+  bodyHash?: string;
 }
 
 const PATTERNS: Array<{ kind: SymbolInfo["kind"]; regex: RegExp }> = [

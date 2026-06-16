@@ -15,9 +15,12 @@ interface FixtureSnapshot {
   diff: string;
 }
 
+import { duplicateUtilityAnalyzer } from "../src/analyzers/duplicate-utility.js";
+
 const ANALYZERS: Record<string, typeof ciWeakeningAnalyzer> = {
   "ci-weakening": ciWeakeningAnalyzer,
   "security-boundary": securityBoundaryAnalyzer,
+  "duplicate-utility": duplicateUtilityAnalyzer,
 };
 
 function makeContext(diff: string, file: string): DiffContext {
@@ -52,8 +55,6 @@ describe("fixture snapshots", () => {
     const fixture = JSON.parse(
       readFileSync(resolve(snapshotDir, file), "utf-8")
     ) as FixtureSnapshot;
-
-    if (file === "duplicate-utility.json") continue;
 
     const category = file.replace(".json", "");
     const analyzer = ANALYZERS[category === "ci-weakening" ? "ci-weakening" : category];

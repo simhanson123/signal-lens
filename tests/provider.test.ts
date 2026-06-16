@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { OpenAiProvider } from "../src/providers/openai.js";
+import { listProviders } from "../src/providers/registry.js";
 
 describe("OpenAiProvider", () => {
   const originalKey = process.env.OPENAI_API_KEY;
@@ -38,5 +39,11 @@ describe("OpenAiProvider", () => {
 
     expect(response.skipped).toBe(true);
     expect(response.findings).toHaveLength(0);
+  });
+
+  it("lists providers via registry", () => {
+    const providers = listProviders();
+    expect(providers.some((p) => p.name === "openai")).toBe(true);
+    expect(providers.some((p) => p.name === "anthropic")).toBe(true);
   });
 });

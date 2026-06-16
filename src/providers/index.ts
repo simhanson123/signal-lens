@@ -1,14 +1,5 @@
-import { OpenAiProvider } from "./openai.js";
-import type { AiProvider } from "./types.js";
-
-let defaultProvider: AiProvider | null = null;
-
-export function getDefaultProvider(): AiProvider {
-  if (!defaultProvider) {
-    defaultProvider = new OpenAiProvider();
-  }
-  return defaultProvider;
-}
-
-export { OpenAiProvider };
+export { getProvider, getAvailableProvider, listProviders } from "./registry.js";
+export { OpenAiProvider } from "./openai.js";
+export { AnthropicProvider } from "./anthropic.js";
+export { MockProvider } from "./mock.js";
 export type { AiProvider, AiReviewRequest, AiReviewResponse } from "./types.js";

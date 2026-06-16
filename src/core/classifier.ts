@@ -1,4 +1,5 @@
-import type { ChangeCategory, ChangedFile, DiffContext, ReviewSummary } from "./types.js";
+import type { RepoSummary } from "../indexer/repo-summary.js";
+import type { ChangeCategory, ChangedFile, DiffContext, PrContext, ReviewSummary } from "./types.js";
 
 const CI_PATTERNS = [
   /^\.github\/workflows\//,
@@ -71,7 +72,11 @@ function emptyCategories(): Record<ChangeCategory, number> {
   };
 }
 
-export function buildReviewSummary(context: DiffContext): ReviewSummary {
+export function buildReviewSummary(
+  context: DiffContext,
+  pr?: PrContext,
+  repoSummary?: RepoSummary
+): ReviewSummary {
   const categories = emptyCategories();
 
   for (const file of context.changedFiles) {
@@ -93,11 +98,19 @@ export function buildReviewSummary(context: DiffContext): ReviewSummary {
     .map(([cat, count]) => `${cat}: ${count}`)
     .join(", ");
 
+  let purpose = inferPurpose(context);
+  if (pr?.title) purpose = `${pr.title} — ${purpose}`;
+  if (repoSummary?.architectureRules.length) {
+    purpose += `; ${repoSummary.architectureRules.length} architecture rule(s) loaded`;
+  }
+
   return {
-    purpose: inferPurpose(context),
+    purpose,
     scope: `${context.summary} (${categoryLabels || "no categorized changes"})`,
     riskFiles,
     categories,
+    prTitle: pr?.title,
+    ciStatus: pr?.ciStatus,
   };
 }
 

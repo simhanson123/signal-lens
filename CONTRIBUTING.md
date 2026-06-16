@@ -5,7 +5,7 @@ Thank you for your interest in contributing!
 ## Development Setup
 
 ```bash
-git clone https://github.com/review-mcp/review-mcp.git
+git clone https://github.com/simhanson123/review-mcp.git
 cd review-mcp
 npm install
 npm test

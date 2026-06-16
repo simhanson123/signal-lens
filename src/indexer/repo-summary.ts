@@ -2,7 +2,8 @@ import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ReviewMcpConfig } from "../config/schema.js";
-import { indexRepository, type SymbolInfo } from "./symbols.js";
+import { loadIndexedSymbols } from "./tree-sitter.js";
+import type { SymbolInfo } from "./symbols.js";
 
 export interface RepoSummary {
   root: string;
@@ -14,55 +15,38 @@ export interface RepoSummary {
   architectureRules: string[];
 }
 
-export function buildRepoSummary(
-  repoRoot: string,
-  config: ReviewMcpConfig
-): RepoSummary {
-  const languages = detectLanguages(repoRoot);
-
+export function buildRepoSummary(repoRoot: string, config: ReviewMcpConfig): RepoSummary {
+  const symbols = loadIndexedSymbols(repoRoot);
   return {
     root: repoRoot,
-    languages,
+    languages: detectLanguages(repoRoot),
     packageManager: detectPackageManager(repoRoot),
     testFramework: detectTestFramework(repoRoot),
-    symbolCount: indexRepository(repoRoot).length,
+    symbolCount: symbols.length,
     topLevelDirs: listTopLevelDirs(repoRoot),
     architectureRules: config.rules.architecture,
   };
 }
 
-export function getSymbolResource(
-  repoRoot: string,
-  name: string
-): { name: string; matches: SymbolInfo[] } {
-  const symbols = indexRepository(repoRoot);
+export function getSymbolResource(repoRoot: string, name: string): { name: string; matches: SymbolInfo[] } {
+  const symbols = loadIndexedSymbols(repoRoot);
   const matches = symbols.filter(
     (s) => s.name === name || s.name.toLowerCase().includes(name.toLowerCase())
   );
-
   return { name, matches: matches.slice(0, 20) };
 }
 
 function detectLanguages(repoRoot: string): string[] {
   const langs = new Set<string>();
-
   try {
-    const output = execSync('git ls-files', {
-      cwd: repoRoot,
-      encoding: "utf-8",
-    }).trim();
-
-    for (const file of output.split("\n")) {
+    for (const file of execSync("git ls-files", { cwd: repoRoot, encoding: "utf-8" }).trim().split("\n")) {
       if (file.endsWith(".ts") || file.endsWith(".tsx")) langs.add("typescript");
       else if (file.endsWith(".js") || file.endsWith(".jsx")) langs.add("javascript");
       else if (file.endsWith(".py")) langs.add("python");
       else if (file.endsWith(".go")) langs.add("go");
       else if (file.endsWith(".rs")) langs.add("rust");
     }
-  } catch {
-    // empty
-  }
-
+  } catch { /* empty */ }
   return [...langs];
 }
 
@@ -84,12 +68,8 @@ function detectTestFramework(repoRoot: string): string | undefined {
 
 function listTopLevelDirs(repoRoot: string): string[] {
   try {
-    const output = execSync('git ls-tree --name-only HEAD', {
-      cwd: repoRoot,
-      encoding: "utf-8",
-    }).trim();
-
-    return output.split("\n").filter((e) => !e.includes("."));
+    return execSync("git ls-tree --name-only HEAD", { cwd: repoRoot, encoding: "utf-8" })
+      .trim().split("\n").filter((e) => !e.includes("."));
   } catch {
     return [];
   }

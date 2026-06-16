@@ -1,102 +1,59 @@
 # review-mcp
 
-**MCP-based AI PR review and maintainer automation agent**
+**MCP-based AI PR review and maintainer automation agent** — v1.0.0
 
-`review-mcp` is an open-source maintainer automation agent that uses repository-level context for AI-powered pull request review. Unlike diff-only review bots, it detects problems that are easy to miss when only reading changed lines: CI weakening, duplicated utilities, security boundary regressions, and more — with evidence-based findings.
+Context-first PR review for open-source maintainers handling AI-generated pull requests.
 
-## Problem
+**Repository:** https://github.com/simhanson123/review-mcp
 
-AI coding agents generate more pull requests than ever. They look clean: consistent style, passing tests, plausible descriptions. But maintainers face new risks:
+## Features
 
-| Risk | What review-mcp checks |
-|------|------------------------|
-| CI weakening | Workflow, coverage, and lint gate changes |
-| Duplicate utilities | New helpers that mirror existing symbols |
-| Security boundaries | Untrusted input, secrets, token scope |
-| Review fatigue | Severity-ranked, evidence-backed findings |
+| Area | Commands / Surfaces |
+|------|---------------------|
+| PR Review | `review-mcp review`, GitHub Action, MCP `review_pr` |
+| Tree-sitter Index | `review-mcp index` → SQLite symbol + import graph |
+| MCP Server | `review-mcp mcp` — 5 resources, 6 tools, 4 prompts |
+| Issue Triage | `review-mcp triage` |
+| Release Notes | `review-mcp release`, MCP `draft_release_notes` |
+| Auto-fix Draft | `review-mcp fix`, `/review-mcp fix` |
+| Slash Commands | `/review-mcp explain`, `false-positive`, `fix`, `release-notes` |
+| GitHub App | `review-mcp serve` + `github-app/manifest.yml` |
+| AI Providers | OpenAI, Anthropic, mock (`REVIEW_MCP_PROVIDER`) |
+| Output | Markdown, JSON, SARIF (Code Scanning) |
+
+### No API key required
+
+Static analyzers run without any API key. Set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` to enable AI review.
 
 ## Quick Start
-
-### CLI
 
 ```bash
 npm install -g review-mcp
 
-# Review local branch against main
+# Index repository symbols (tree-sitter)
+review-mcp index
+
+# Review branch
 review-mcp review --base main --head HEAD
 
-# JSON output for automation
-review-mcp review --base main --head HEAD --output json
+# All output formats
+review-mcp review --base main --head HEAD --output all -f report
 
-# Write both markdown and JSON
-review-mcp review --base main --head HEAD --output both --output-file report
+# Static only
+review-mcp review --base main --head HEAD --static-only
 ```
 
-### GitHub Action
-
-Add `.github/workflows/review-mcp.yml` to your repository:
+## GitHub Action
 
 ```yaml
-name: review-mcp PR Review
-
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-permissions:
-  contents: read
-  pull-requests: write
-
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: review-mcp/review-mcp/action.yml@v0.2.0
-        with:
-          base: ${{ github.event.pull_request.base.sha }}
-          head: ${{ github.event.pull_request.head.sha }}
-          output-format: both
-          post-comment: "true"
+- uses: simhanson123/review-mcp/action.yml@v1.0.0
+  with:
+    output-format: all
+    post-comment: "true"
+    fail-on-blocker: "true"
 ```
 
-See [`.github/workflows/review-mcp.yml`](.github/workflows/review-mcp.yml) for the full example.
-
-## Features (v0.2)
-
-- **GitHub Action** — runs on `pull_request` events
-- **CLI** — `review-mcp review --base main --head HEAD`
-- **MCP Context Server** — `review-mcp mcp` (resources, tools, prompts)
-- **Symbol indexer** — `review-mcp index` for repository context
-- **`.review-mcp.yml`** — per-project review policy
-- **Static analyzers** — CI weakening, duplicate utility, security boundary
-- **Optional AI review** — runs when `OPENAI_API_KEY` is set; skips gracefully otherwise
-- **Output formats** — Markdown, JSON, SARIF
-
-### No API key? No problem.
-
-`review-mcp` works fully without an OpenAI API key. Static analyzers run by default. AI review is attempted only when `OPENAI_API_KEY` is set and `ai-review: auto` in config. Use `--static-only` to force static-only mode.
-
-## Output Format
-
-Every finding includes:
-
-| Field | Description |
-|-------|-------------|
-| Severity | `blocker`, `high`, `medium`, `low` |
-| Evidence | File, line, symbol, snippet |
-| Reason | Why this matters |
-| Suggested action | What the maintainer should do |
-| Confidence | Model/analyzer confidence score |
-
-### MCP Server
-
-Add to your MCP client config:
+## MCP Client Config
 
 ```json
 {
@@ -110,21 +67,9 @@ Add to your MCP client config:
 }
 ```
 
-**Resources:** `repo://summary`, `repo://symbols/{name}`, `repo://architecture/rules`
+## Configuration
 
-**Tools:** `review_pr`, `scan_ci_weakening`, `find_duplicate_utility`, `trace_security_boundary`
-
-### Configuration
-
-Copy [`.review-mcp.yml`](.review-mcp.yml) to your repository root to customize analyzers, AI model, and architecture rules.
-
-## Roadmap
-
-| Version | Focus |
-|---------|-------|
-| **v0.2** (current) | MCP server, SARIF, symbol indexer, optional AI |
-| **v0.3** | Feedback memory, release assistant, issue triage |
-| **v0.4** | GitHub App, multi-provider |
+Copy [`.review-mcp.yml`](.review-mcp.yml) to your repo root.
 
 ## Development
 
@@ -141,7 +86,8 @@ npm run build
 - [Architecture](docs/architecture.md)
 - [Security](docs/security.md)
 - [OpenAI Codex for OSS Plan](docs/openai-codex-for-oss-plan.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT

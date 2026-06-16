@@ -15,17 +15,21 @@ inputs:
     required: false
     default: "${{ github.event.pull_request.head.sha }}"
   output-format:
-    description: "Output format: markdown, json, or both"
+    description: "Output format: markdown, json, sarif, both, or all"
     required: false
-    default: "markdown"
+    default: "all"
   output-file:
-    description: "Optional file path for review output"
+    description: "Base path for review output (extensions added per format)"
     required: false
-    default: "review-mcp-report.md"
+    default: "review-mcp-report"
   post-comment:
-    description: "Post review as PR comment (requires write permissions)"
+    description: "Post review as PR comment (requires write permissions in separate job)"
     required: false
     default: "false"
+  fail-on-blocker:
+    description: "Fail the review step when blocker findings are detected"
+    required: false
+    default: "true"
   github-token:
     description: "GitHub token for posting comments"
     required: false
@@ -33,8 +37,11 @@ inputs:
 
 outputs:
   report-path:
-    description: "Path to the generated review report"
+    description: "Path to the generated markdown report"
     value: ${{ steps.review.outputs.report-path }}
+  sarif-path:
+    description: "Path to SARIF output"
+    value: ${{ steps.review.outputs.sarif-path }}
   finding-count:
     description: "Total number of findings"
     value: ${{ steps.review.outputs.finding-count }}
@@ -52,9 +59,13 @@ runs:
 
     - name: Install review-mcp
       shell: bash
-      run: npm install -g review-mcp@0.2.0 || npm install -g .
+      run: npm install -g review-mcp@1.0.0 || npm install -g .
 
-    - name: Run review
+    - name: Index repository symbols
+      shell: bash
+      run: review-mcp index --repo "$GITHUB_WORKSPACE" || true
+
+    - name: Run review (read-only)
       id: review
       shell: bash
       env:
@@ -62,40 +73,51 @@ runs:
         HEAD_REF: ${{ inputs.head }}
         OUTPUT_FORMAT: ${{ inputs.output-format }}
         OUTPUT_FILE: ${{ inputs.output-file }}
+        FAIL_ON_BLOCKER: ${{ inputs.fail-on-blocker }}
       run: |
+        set +e
         review-mcp review \
           --base "$BASE_REF" \
           --head "$HEAD_REF" \
           --output "$OUTPUT_FORMAT" \
-          --output-file "$OUTPUT_FILE" || true
+          --output-file "$OUTPUT_FILE" \
+          --static-only
+        REVIEW_EXIT=$?
 
+        JSON_PATH="${OUTPUT_FILE}.json"
+        if [ "$OUTPUT_FORMAT" = "json" ]; then JSON_PATH="$OUTPUT_FILE"; fi
+
+        export JSON_PATH="$JSON_PATH"
         FINDING_COUNT=$(node -e "
-          const fs = require('fs');
-          const base = process.env.OUTPUT_FILE.replace(/\.[^.]+$/, '');
-          const jsonPath = process.env.OUTPUT_FORMAT === 'json' ? process.env.OUTPUT_FILE : base + '.json';
-          if (!fs.existsSync(jsonPath)) { console.log('0'); process.exit(0); }
-          const r = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-          console.log(r.findings.length);
+          const fs=require('fs');
+          const p=process.env.JSON_PATH;
+          if(!fs.existsSync(p)){console.log('0');process.exit(0)}
+          console.log(JSON.parse(fs.readFileSync(p,'utf8')).findings.length);
         ")
 
         HAS_BLOCKER=$(node -e "
-          const fs = require('fs');
-          const base = process.env.OUTPUT_FILE.replace(/\.[^.]+$/, '');
-          const jsonPath = process.env.OUTPUT_FORMAT === 'json' ? process.env.OUTPUT_FILE : base + '.json';
-          if (!fs.existsSync(jsonPath)) { console.log('false'); process.exit(0); }
-          const r = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-          console.log(r.findings.some(f => f.severity === 'blocker') ? 'true' : 'false');
+          const fs=require('fs');
+          const p=process.env.JSON_PATH;
+          if(!fs.existsSync(p)){console.log('false');process.exit(0)}
+          const r=JSON.parse(fs.readFileSync(p,'utf8'));
+          console.log(r.findings.some(f=>f.severity==='blocker')?'true':'false');
         ")
 
-        echo "report-path=$OUTPUT_FILE" >> "$GITHUB_OUTPUT"
+        echo "report-path=${OUTPUT_FILE}.md" >> "$GITHUB_OUTPUT"
+        echo "sarif-path=${OUTPUT_FILE}.sarif" >> "$GITHUB_OUTPUT"
         echo "finding-count=$FINDING_COUNT" >> "$GITHUB_OUTPUT"
         echo "has-blocker=$HAS_BLOCKER" >> "$GITHUB_OUTPUT"
+
+        if [ "$FAIL_ON_BLOCKER" = "true" ] && [ "$HAS_BLOCKER" = "true" ]; then
+          exit 1
+        fi
+        exit 0
 
     - name: Post PR comment
       if: inputs.post-comment == 'true' && github.event_name == 'pull_request'
       uses: actions/github-script@v7
       env:
-        REPORT_FILE: ${{ inputs.output-file }}
+        REPORT_FILE: ${{ inputs.output-file }}.md
       with:
         github-token: ${{ inputs.github-token }}
         script: |

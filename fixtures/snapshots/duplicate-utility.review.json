@@ -1,13 +1,13 @@
 {
   "version": "0.2.0",
-  "generatedAt": "2026-06-16T14:40:34.705Z",
+  "generatedAt": "2026-06-16T14:59:51.977Z",
   "base": "main",
   "head": "feature/fixture",
   "summary": {
-    "purpose": "Duplicate utility - new helper function",
+    "purpose": "Duplicate utility - redefines runReview",
     "scope": "Fixture: duplicate-utility",
     "riskFiles": [
-      "src/utils/date.ts"
+      "src/new-review.ts"
     ],
     "categories": {
       "code": 0,
@@ -18,7 +18,34 @@
       "security-sensitive": 0
     }
   },
-  "findings": [],
+  "findings": [
+    {
+      "id": "dup-grep-runReview",
+      "severity": "medium",
+      "category": "duplicate-utility",
+      "title": "Symbol \"runReview\" found via git grep",
+      "reason": "Fallback grep detected existing references (run `review-mcp index` for tree-sitter accuracy).",
+      "evidence": [
+        {
+          "file": "fixtures/snapshots/duplicate-utility.json",
+          "line": 3,
+          "symbol": "runReview"
+        },
+        {
+          "file": "fixtures/snapshots/duplicate-utility.json",
+          "line": 4,
+          "symbol": "runReview"
+        },
+        {
+          "file": "fixtures/snapshots/duplicate-utility.json",
+          "line": 9,
+          "symbol": "runReview"
+        }
+      ],
+      "suggestedAction": "Reuse \"runReview\" from existing codebase.",
+      "confidence": 0.8
+    }
+  ],
   "metadata": {
     "analyzerCount": 1,
     "durationMs": 0,

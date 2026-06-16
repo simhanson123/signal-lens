@@ -1,26 +1,24 @@
 export { runReview } from "./orchestrator/review.js";
-export { collectDiff } from "./core/collector.js";
+export { synthesizeFindings } from "./orchestrator/synthesizer.js";
+export { collectDiff, collectDiffWithPr } from "./core/collector.js";
 export { buildReviewSummary, classifyFile } from "./core/classifier.js";
 export { toMarkdown, toJson, writeOutput } from "./core/reporter.js";
 export { toSarif } from "./core/sarif.js";
 export { loadConfig, shouldRunAiReview } from "./config/loader.js";
 export { DEFAULT_CONFIG } from "./config/schema.js";
-export { getDefaultProvider } from "./providers/index.js";
-export { indexRepository, findSymbol } from "./indexer/symbols.js";
+export { getProvider, getAvailableProvider, listProviders } from "./providers/registry.js";
+export { indexAndPersistSymbols, loadIndexedSymbols, initTreeSitter } from "./indexer/tree-sitter.js";
+export { buildImportGraph, loadImportGraph } from "./indexer/imports.js";
 export { buildRepoSummary } from "./indexer/repo-summary.js";
 export { startMcpServer } from "./mcp/server.js";
+export { startGitHubAppServer } from "./github/app.js";
+export { parseSlashCommand, executeSlashCommand } from "./github/slash-commands.js";
+export { collectPrMetadata } from "./github/pr-collector.js";
 export { loadFeedback, recordFeedback, filterByFeedback } from "./memory/feedback.js";
-export { draftReleaseNotes, listMergedPrs } from "./release/assistant.js";
+export { loadReviewHistory, saveReviewHistory } from "./memory/history.js";
+export { draftReleaseNotes, listMergedPrs, getCurrentReleaseState } from "./release/assistant.js";
+export { triageIssueLocally, triageIssuesFromGitHub } from "./issue/triage.js";
+export { generateFixDraft } from "./autofix/draft.js";
 export { defaultAnalyzers } from "./analyzers/index.js";
-export type {
-  Analyzer,
-  ChangedFile,
-  DiffContext,
-  Finding,
-  ReviewOptions,
-  ReviewResult,
-  ReviewSummary,
-  Severity,
-  AiReviewStatus,
-} from "./core/types.js";
+export type * from "./core/types.js";
 export type { ReviewMcpConfig } from "./config/schema.js";
