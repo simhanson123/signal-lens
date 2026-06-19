@@ -63,7 +63,7 @@ runs:
 
     - name: Install review-mcp
       shell: bash
-      run: npm install -g review-mcp@1.2.0 || npm install -g .
+      run: npm install -g review-mcp@1.3.0 || npm install -g .
 
     - name: Index repository symbols
       shell: bash

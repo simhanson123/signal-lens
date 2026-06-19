@@ -2,7 +2,7 @@
 
 ## Overview
 
-`review-mcp` v1.2.0 is a context-first PR review and maintainer automation platform.
+`review-mcp` v1.3.0 is a context-first PR review and maintainer automation platform.
 
 ```
 GitHub Action / CLI / GitHub App / MCP Server
@@ -29,7 +29,8 @@ Diff Collector  Risk Classifier  Context Indexer (Tree-sitter + SQLite)
 
 | Component | Path | Role |
 |-----------|------|------|
-| CLI | `src/cli.ts` | review, index, mcp, serve, feedback, release, triage, fix, slash |
+| CLI | `src/cli.ts` | review, index, mcp, serve, feedback, release, triage, fix, slash, providers, post-inline |
+| Agent Skill | `skills/review-mcp/` | `/review-mcp` for Claude Code + Grok/Codex |
 | GitHub Action | `action.yml` | Read-only review + optional PR comment + SARIF |
 | GitHub App | `src/github/app.ts` | Webhook server for PR events and slash commands |
 | MCP Server | `src/mcp/server.ts` | Full MCP resources, tools, prompts |

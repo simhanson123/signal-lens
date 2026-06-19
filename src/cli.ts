@@ -22,7 +22,7 @@ import { runReview } from "./orchestrator/review.js";
 
 const program = new Command();
 
-program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.1.0");
+program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.3.0");
 
 program
   .command("review")

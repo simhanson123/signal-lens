@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 — 2026-06-19
+
+### Added
+- **Agent Skill** — `skills/review-mcp/SKILL.md` + `scripts/run-review.sh` for Claude Code and Grok/Codex
+- Project skill paths: `.claude/skills/review-mcp/`, `.grok/skills/review-mcp/`
+- `docs/skills.md` — installation and `/review-mcp` usage
+
+### Changed
+- Version strings unified to 1.3.0 (CLI, orchestrator, MCP server)
+- README: Agent Skill section, Action `@v1.3.0`
+
 ## 1.2.0 — 2026-06-19
 
 ### Added

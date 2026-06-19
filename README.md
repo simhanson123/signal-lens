@@ -1,6 +1,6 @@
 # review-mcp
 
-**MCP-based AI PR review and maintainer automation agent** — v1.2.0
+**MCP-based AI PR review and maintainer automation agent** — v1.3.0
 
 Context-first PR review for open-source maintainers handling AI-generated pull requests.
 
@@ -18,7 +18,8 @@ Context-first PR review for open-source maintainers handling AI-generated pull r
 | Release Notes | `review-mcp release`, MCP `draft_release_notes` |
 | Auto-fix Draft | `review-mcp fix`, `/review-mcp fix` |
 | Slash Commands | `/review-mcp explain`, `false-positive`, `fix`, `release-notes` |
-| GitHub App | `review-mcp serve` + `github-app/manifest.yml` |
+| Agent Skills | `/review-mcp` — Claude Code + Grok/Codex (`skills/review-mcp/`) |
+| GitHub App | `review-mcp serve` + `github-app/manifest.yml` (experimental) |
 | AI Providers | OpenAI, Anthropic, **Ollama (local)**, mock |
 | Output | Markdown, JSON, SARIF (Code Scanning) |
 
@@ -91,13 +92,35 @@ review-mcp review --base main --head HEAD \
 ## GitHub Action
 
 ```yaml
-- uses: simhanson123/review-mcp/action.yml@v1.1.0
+- uses: simhanson123/review-mcp/action.yml@v1.3.0
   with:
     output-format: all
     post-comment: "true"
     post-inline-comments: "true"
     fail-on-blocker: "true"
 ```
+
+## Agent Skill (Claude Code + Grok/Codex)
+
+Copy `skills/review-mcp/` into your project:
+
+```bash
+# Claude Code
+cp -r skills/review-mcp .claude/skills/review-mcp
+
+# Grok / Codex
+cp -r skills/review-mcp .grok/skills/review-mcp
+```
+
+Then invoke:
+
+```
+/review-mcp
+/review-mcp --branch my-feature
+/review-mcp --with-ai
+```
+
+The skill runs `scripts/run-review.sh` (static analyzers first), then summarizes blockers with evidence. See [docs/skills.md](docs/skills.md).
 
 ## MCP Client Config
 
@@ -129,6 +152,7 @@ npm run build
 
 ## Documentation
 
+- [Agent Skills](docs/skills.md)
 - [Architecture](docs/architecture.md)
 - [Security](docs/security.md)
 - [OpenAI Codex for OSS Plan](docs/openai-codex-for-oss-plan.md)
