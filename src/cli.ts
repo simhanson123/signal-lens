@@ -23,7 +23,7 @@ import { runReview } from "./orchestrator/review.js";
 
 const program = new Command();
 
-program.name("review-mcp").description("Context-first PR review for open-source maintainers").version("1.3.2");
+program.name("signal-lens").description("Signal Lens — context-first maintainer PR review").version("2.0.0");
 
 program
   .command("review")
@@ -207,7 +207,7 @@ program
   .action(async (opts) => {
     const parsed = parseSlashCommand(opts.body);
     if (!parsed) {
-      console.error("No /review-mcp command found in body");
+      console.error("No /signal-lens command found in body");
       process.exit(2);
     }
     const response = await executeSlashCommand({

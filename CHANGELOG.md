@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.0 — 2026-06-20
+
+### Changed
+- **Rebrand to Signal Lens** — project renamed from `review-mcp` to `signal-lens`
+- GitHub repository: `simhanson123/signal-lens`
+- npm package, CLI binary, MCP server name: `signal-lens`
+- Config file: `.signal-lens.yml` (loader falls back to `.review-mcp.yml`)
+- Store directory: `.signal-lens/` (was `.review-mcp/`)
+- Slash commands: `/signal-lens` (was `/review-mcp`)
+- Env vars: `SIGNAL_LENS_*` (registry keeps `REVIEW_MCP_*` fallback)
+- Schema type: `SignalLensConfig` (was `ReviewMcpConfig`)
+- Skill paths: `skills/signal-lens/`, `.claude/skills/signal-lens/`, `.grok/skills/signal-lens/`
+- Action/workflow → `@v2.0.0`
+
 ## 1.3.2 — 2026-06-19
 
 ### Changed

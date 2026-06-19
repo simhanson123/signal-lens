@@ -32,13 +32,13 @@ export function findingsWithInlineTargets(findings: Finding[]): Finding[] {
 export function formatInlineComment(finding: Finding): string {
   const badge = finding.severity.toUpperCase();
   return [
-    `**[review-mcp ${badge}]** ${finding.title}`,
+    `**[Signal Lens ${badge}]** ${finding.title}`,
     "",
     finding.reason,
     "",
     `**Suggested:** ${finding.suggestedAction}`,
     "",
-    `_ID: \`${finding.id}\` · /review-mcp false-positive ${finding.id}_`,
+    `_ID: \`${finding.id}\` · /signal-lens false-positive ${finding.id}_`,
   ].join("\n");
 }
 
@@ -81,7 +81,7 @@ export async function postInlineReviewComments(
       pull_number: options.pullNumber,
       commit_id: options.commitSha,
       event: "COMMENT",
-      body: `## review-mcp inline review\n\n${comments.length} inline comment(s) on specific lines.`,
+      body: `## Signal Lens inline review\n\n${comments.length} inline comment(s) on specific lines.`,
       comments,
     });
     return { posted: comments.length, skipped, errors };

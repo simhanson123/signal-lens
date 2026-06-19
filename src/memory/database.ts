@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-const STORE_DIR = ".review-mcp";
+const STORE_DIR = ".signal-lens";
 
 let dbInstance: Database.Database | null = null;
 
@@ -12,7 +12,7 @@ export function getDatabase(repoRoot: string): Database.Database {
   const dir = resolve(repoRoot, STORE_DIR);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-  const db = new Database(resolve(dir, "review-mcp.sqlite"));
+  const db = new Database(resolve(dir, "signal-lens.sqlite"));
   db.pragma("journal_mode = WAL");
 
   db.exec(`

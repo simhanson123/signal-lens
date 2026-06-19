@@ -1,7 +1,0 @@
-{
-  "name": "review-mcp",
-  "description": "Optional MCP integration for review-mcp — repository resources, review tools, maintainer prompts.",
-  "version": "1.3.2",
-  "command": "review-mcp mcp",
-  "repository": "https://github.com/simhanson123/review-mcp"
-}

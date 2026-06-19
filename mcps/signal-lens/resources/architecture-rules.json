@@ -1,6 +1,6 @@
 {
   "name": "architecture-rules",
   "uri": "repo://architecture/rules",
-  "description": "Maintainer-defined architecture rules from .review-mcp.yml.",
+  "description": "Maintainer-defined architecture rules from .signal-lens.yml.",
   "mimeType": "application/json"
 }

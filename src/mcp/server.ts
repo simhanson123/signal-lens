@@ -19,7 +19,7 @@ import { runReview } from "../orchestrator/review.js";
 
 export async function startMcpServer(repoRoot = process.cwd()): Promise<void> {
   const config = loadConfig(repoRoot);
-  const server = new McpServer({ name: "review-mcp", version: "1.3.2" });
+  const server = new McpServer({ name: "signal-lens", version: "2.0.0" });
 
   server.resource("repo-summary", "repo://summary", async () => ({
     contents: [{ uri: "repo://summary", mimeType: "application/json", text: JSON.stringify(buildRepoSummary(repoRoot, config), null, 2) }],

@@ -21,4 +21,4 @@ export { triageIssueLocally, triageIssuesFromGitHub } from "./issue/triage.js";
 export { generateFixDraft } from "./autofix/draft.js";
 export { defaultAnalyzers } from "./analyzers/index.js";
 export type * from "./core/types.js";
-export type { ReviewMcpConfig } from "./config/schema.js";
+export type { SignalLensConfig } from "./config/schema.js";

@@ -10,7 +10,7 @@ export class OllamaProvider implements AiProvider {
   name = "ollama";
 
   isAvailable(): boolean {
-    const forced = process.env.REVIEW_MCP_PROVIDER;
+    const forced = process.env.SIGNAL_LENS_PROVIDER;
     if (forced && forced !== "ollama") return false;
     return true;
   }

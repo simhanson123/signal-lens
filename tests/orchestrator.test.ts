@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { resetDatabase } from "../src/memory/database.js";
 import { runReview } from "../src/orchestrator/review.js";
 
-const STORE = resolve(process.cwd(), ".review-mcp");
+const STORE = resolve(process.cwd(), ".signal-lens");
 
 afterEach(() => {
   resetDatabase();
@@ -21,7 +21,7 @@ describe("runReview integration", () => {
       noAi: true,
     });
 
-    expect(result.version).toBe("1.3.2");
+    expect(result.version).toBe("2.0.0");
     expect(result.metadata.staticOnly).toBe(true);
     expect(result.metadata.analyzerCount).toBeGreaterThan(0);
   }, 20_000);

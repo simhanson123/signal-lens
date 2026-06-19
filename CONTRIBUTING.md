@@ -1,12 +1,12 @@
-# Contributing to review-mcp
+# Contributing to signal-lens
 
 Thank you for your interest in contributing!
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/simhanson123/review-mcp.git
-cd review-mcp
+git clone https://github.com/simhanson123/signal-lens.git
+cd signal-lens
 npm install
 npm test
 ```

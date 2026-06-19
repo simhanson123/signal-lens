@@ -1,14 +1,14 @@
 import { getAvailableProvider } from "../providers/registry.js";
-import type { ReviewMcpConfig } from "../config/schema.js";
+import type { SignalLensConfig } from "../config/schema.js";
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
 
-export function createAiReviewAnalyzer(config: ReviewMcpConfig): Analyzer {
+export function createAiReviewAnalyzer(config: SignalLensConfig): Analyzer {
   return {
     name: "ai-review",
 
     async analyze(context: DiffContext): Promise<Finding[]> {
       const provider = getAvailableProvider(
-        process.env.REVIEW_MCP_PROVIDER,
+        process.env.SIGNAL_LENS_PROVIDER,
         config.ai.provider
       );
       if (!provider) return [];

@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import type { ReviewMcpConfig } from "../config/schema.js";
+import type { SignalLensConfig } from "../config/schema.js";
 import { loadIndexedSymbols } from "./tree-sitter.js";
 import type { SymbolInfo } from "./symbols.js";
 
@@ -15,7 +15,7 @@ export interface RepoSummary {
   architectureRules: string[];
 }
 
-export function buildRepoSummary(repoRoot: string, config: ReviewMcpConfig): RepoSummary {
+export function buildRepoSummary(repoRoot: string, config: SignalLensConfig): RepoSummary {
   const symbols = loadIndexedSymbols(repoRoot);
   return {
     root: repoRoot,

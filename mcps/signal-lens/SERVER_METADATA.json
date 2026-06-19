@@ -1,0 +1,7 @@
+{
+  "name": "signal-lens",
+  "description": "Optional MCP integration for signal-lens — repository resources, review tools, maintainer prompts.",
+  "version": "2.0.0",
+  "command": "signal-lens mcp",
+  "repository": "https://github.com/simhanson123/signal-lens"
+}

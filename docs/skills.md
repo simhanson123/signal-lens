@@ -1,14 +1,14 @@
 # Agent Skills (Claude Code + Grok/Codex)
 
-`review-mcp` is a **maintainer PR review platform**. The recommended entry point is the **Agent Skill** (`/review-mcp`), which auto-routes to MCP or CLI.
+`signal-lens` is a **maintainer PR review platform**. The recommended entry point is the **Agent Skill** (`/signal-lens`), which auto-routes to MCP or CLI.
 
 ## Locations in this repo
 
 | Path | Host |
 |------|------|
-| `skills/review-mcp/` | Canonical source |
-| `.claude/skills/review-mcp/` | Claude Code (project) |
-| `.grok/skills/review-mcp/` | Grok / Codex (project) |
+| `skills/signal-lens/` | Canonical source |
+| `.claude/skills/signal-lens/` | Claude Code (project) |
+| `.grok/skills/signal-lens/` | Grok / Codex (project) |
 
 ## Use in your OSS repository
 
@@ -16,15 +16,15 @@ Copy the skill into the repo you are maintaining:
 
 ```bash
 # Claude Code
-mkdir -p .claude/skills/review-mcp
-cp -r path/to/review-mcp/skills/review-mcp/* .claude/skills/review-mcp/
+mkdir -p .claude/skills/signal-lens
+cp -r path/to/signal-lens/skills/signal-lens/* .claude/skills/signal-lens/
 
 # Grok / Codex
-mkdir -p .grok/skills/review-mcp
-cp -r path/to/review-mcp/skills/review-mcp/* .grok/skills/review-mcp/
+mkdir -p .grok/skills/signal-lens
+cp -r path/to/signal-lens/skills/signal-lens/* .grok/skills/signal-lens/
 ```
 
-Ensure `review-mcp` is on PATH (`npm install -g review-mcp`) or build from source (`npm run build` → uses `dist/cli.js`).
+Ensure `signal-lens` is on PATH (`npm install -g signal-lens`) or build from source (`npm run build` → uses `dist/cli.js`).
 
 ## Auto-routing (MCP vs CLI)
 
@@ -38,30 +38,30 @@ The skill **auto-selects** the backend:
 Check with:
 
 ```bash
-review-mcp capabilities
+signal-lens capabilities
 ```
 
 ## Invoke
 
 ```
-/review-mcp                  # auto: MCP if connected, else CLI
-/review-mcp --branch my-feature
-/review-mcp --with-ai
+/signal-lens                  # auto: MCP if connected, else CLI
+/signal-lens --branch my-feature
+/signal-lens --with-ai
 ```
 
 ## Scripts
 
-`skills/review-mcp/scripts/run-review-auto.sh` — capabilities + routing hint + CLI review
+`skills/signal-lens/scripts/run-review-auto.sh` — capabilities + routing hint + CLI review
 
-`skills/review-mcp/scripts/run-review.sh`:
+`skills/signal-lens/scripts/run-review.sh`:
 
 - Auto-detects `main` / `master` as base
-- Runs `review-mcp index` (best-effort)
-- Runs `review-mcp review --output all --static-only` by default
+- Runs `signal-lens index` (best-effort)
+- Runs `signal-lens review --output all --static-only` by default
 - Prints JSON + markdown for the agent to summarize
 
 ```bash
-bash skills/review-mcp/scripts/run-review.sh --base main --head HEAD --static-only
+bash skills/signal-lens/scripts/run-review.sh --base main --head HEAD --static-only
 ```
 
 ## Layers
@@ -72,6 +72,6 @@ bash skills/review-mcp/scripts/run-review.sh --base main --head HEAD --static-on
 | **CLI / Action** | Evidence-based findings, CI integration |
 | **MCP** *(optional)* | Tool/resource access for MCP-connected hosts |
 
-> Product name slug: `review-mcp`. Product identity: maintainer PR review, not MCP-only tooling.
+> Product name slug: `signal-lens`. Product identity: maintainer PR review, not MCP-only tooling.
 
 See [Agent Skills standard](https://agentskills.io) and [Claude Code skills](https://code.claude.com/docs/en/skills).

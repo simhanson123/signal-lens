@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a problem with review-mcp
+about: Report a problem with signal-lens
 title: "[bug] "
 labels: bug
 ---
@@ -14,7 +14,7 @@ labels: bug
 **Expected behavior**
 
 **Environment**
-- review-mcp version:
+- signal-lens version:
 - Node.js version:
 - OS:
 

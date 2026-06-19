@@ -3,12 +3,12 @@ import { parseSlashCommand } from "../src/github/slash-commands.js";
 
 describe("slash commands", () => {
   it("parses review command", () => {
-    const parsed = parseSlashCommand("Please check\n/review-mcp explain");
+    const parsed = parseSlashCommand("Please check\n/signal-lens explain");
     expect(parsed?.command).toBe("explain");
   });
 
   it("parses false-positive with args", () => {
-    const parsed = parseSlashCommand("/review-mcp false-positive ci-1 flaky test");
+    const parsed = parseSlashCommand("/signal-lens false-positive ci-1 flaky test");
     expect(parsed?.command).toBe("false-positive");
     expect(parsed?.args).toContain("ci-1");
   });

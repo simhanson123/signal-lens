@@ -2,18 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { OllamaProvider } from "../src/providers/ollama.js";
 
 describe("OllamaProvider", () => {
-  const originalProvider = process.env.REVIEW_MCP_PROVIDER;
+  const originalProvider = process.env.SIGNAL_LENS_PROVIDER;
   const originalBase = process.env.OLLAMA_BASE_URL;
 
   beforeEach(() => {
-    delete process.env.REVIEW_MCP_PROVIDER;
+    delete process.env.SIGNAL_LENS_PROVIDER;
     delete process.env.OLLAMA_BASE_URL;
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    if (originalProvider) process.env.REVIEW_MCP_PROVIDER = originalProvider;
-    else delete process.env.REVIEW_MCP_PROVIDER;
+    if (originalProvider) process.env.SIGNAL_LENS_PROVIDER = originalProvider;
+    else delete process.env.SIGNAL_LENS_PROVIDER;
     if (originalBase) process.env.OLLAMA_BASE_URL = originalBase;
     else delete process.env.OLLAMA_BASE_URL;
   });
@@ -24,7 +24,7 @@ describe("OllamaProvider", () => {
   });
 
   it("is not available when another provider is forced", () => {
-    process.env.REVIEW_MCP_PROVIDER = "openai";
+    process.env.SIGNAL_LENS_PROVIDER = "openai";
     const provider = new OllamaProvider();
     expect(provider.isAvailable()).toBe(false);
   });

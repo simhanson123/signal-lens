@@ -2,9 +2,9 @@
 
 **Apply at:** https://developers.openai.com/community/codex-for-oss
 
-**Repository:** https://github.com/simhanson123/review-mcp
+**Repository:** https://github.com/simhanson123/signal-lens
 
-**Current release:** v1.3.2 (44 tests, 4 fixture scenarios)
+**Current release:** v2.0.0 (44 tests, 4 fixture scenarios)
 
 ## Application Readiness Checklist
 
@@ -13,7 +13,7 @@
 | Public GitHub repository | Done |
 | MIT license | Done |
 | README (problem, install, Action example) | Done |
-| `.github/workflows/review-mcp.yml` | Done (v1.3.2) |
+| `.github/workflows/signal-lens.yml` | Done (v2.0.0) |
 | Fixture review snapshots (3+) | Done (4 scenarios) |
 | `docs/architecture.md` | Done |
 | `docs/security.md` | Done |
@@ -24,11 +24,11 @@
 
 ## Project Positioning
 
-> `review-mcp` is an open-source maintainer PR review platform that catches what diff-only review misses — CI weakening, security boundary regressions, duplicate utilities, and missing tests — with evidence-based findings. It ships as Agent Skills, CLI, GitHub Action, and optional MCP integration for repository-level context in AI-powered review, issue triage, and release workflows.
+> `signal-lens` is an open-source maintainer PR review platform that catches what diff-only review misses — CI weakening, security boundary regressions, duplicate utilities, and missing tests — with evidence-based findings. It ships as Agent Skills, CLI, GitHub Action, and optional MCP integration for repository-level context in AI-powered review, issue triage, and release workflows.
 
 ## Why This Repository Qualifies
 
-> review-mcp helps OSS maintainers handle the growing volume of AI-generated pull requests. It provides context-first review through static analyzers, Tree-sitter indexing, maintainer rules, and feedback memory — exposed via Skills, CLI, Action, and MCP. The project directly targets PR review, maintainer automation, and release workflows.
+> signal-lens helps OSS maintainers handle the growing volume of AI-generated pull requests. It provides context-first review through static analyzers, Tree-sitter indexing, maintainer rules, and feedback memory — exposed via Skills, CLI, Action, and MCP. The project directly targets PR review, maintainer automation, and release workflows.
 
 ## Product Usage Plan
 
@@ -36,20 +36,20 @@
 
 ## Responsible AI Alignment
 
-OpenAI's workplace AI fundamentals map directly to how `review-mcp` is designed:
+OpenAI's workplace AI fundamentals map directly to how `signal-lens` is designed:
 
-| AI Practice | How review-mcp implements it |
+| AI Practice | How signal-lens implements it |
 |-------------|------------------------------|
 | **Clear instructions** | Structured MCP prompts (`strict_pr_review`, `security_boundary_review`), JSON-schema AI outputs, severity taxonomy |
 | **Providing context** | MCP Resources (`repo://summary`, `repo://symbols`, architecture rules), Tree-sitter index, import graph |
-| **Reviewing outputs** | Evidence + confidence on every finding, `/review-mcp false-positive` feedback loop, SARIF for human triage |
+| **Reviewing outputs** | Evidence + confidence on every finding, `/signal-lens false-positive` feedback loop, SARIF for human triage |
 | **Responsible use** | Read-only default, separate write job for comments, no shell execution of model output, fork PR protection |
 
 The maintainer's real work task this project improves: **reviewing AI-generated pull requests with less fatigue and more evidence**.
 
-## v1.3.2 Capabilities (Shipped)
+## v2.0.0 Capabilities (Shipped)
 
-- **Agent Skills** — `/review-mcp` for Claude Code + Grok/Codex (primary entry point)
+- **Agent Skills** — `/signal-lens` for Claude Code + Grok/Codex (primary entry point)
 - **Auto MCP/CLI routing** — Skill + `capabilities` command
 - **Static analyzers** — CI weakening, security boundaries, duplicates, test coverage
 - **Ollama provider** — local LLM without API keys
@@ -91,6 +91,6 @@ Codex Security will validate:
 
 1. Complete OpenAI's introductory AI course (optional but strengthens AI literacy narrative)
 2. Submit application at https://developers.openai.com/community/codex-for-oss
-3. Link repository: https://github.com/simhanson123/review-mcp
+3. Link repository: https://github.com/simhanson123/signal-lens
 4. Use the positioning and usage plan text above in the application form
-5. Mention v1.3.2 release, 44 tests, Agent Skills + maintainer PR review positioning
+5. Mention v2.0.0 release, 44 tests, Agent Skills + maintainer PR review positioning

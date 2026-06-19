@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# review-mcp skill runner — Claude Code + Grok/Codex compatible
+# signal-lens skill runner — Claude Code + Grok/Codex compatible
 # Usage: run-review.sh [--base REF] [--head REF] [--repo PATH] [--static-only] [--with-ai] [--skip-index] [--output-dir DIR]
 
 set -euo pipefail
@@ -51,20 +51,20 @@ if [[ -z "$BASE_REF" ]]; then
   fi
 fi
 
-resolve_review_mcp() {
-  if command -v review-mcp >/dev/null 2>&1; then
-    echo "review-mcp"
+resolve_signal_lens() {
+  if command -v signal-lens >/dev/null 2>&1; then
+    echo "signal-lens"
     return
   fi
-  if [[ -f "$REPO_ROOT/node_modules/.bin/review-mcp" ]]; then
-    echo "$REPO_ROOT/node_modules/.bin/review-mcp"
+  if [[ -f "$REPO_ROOT/node_modules/.bin/signal-lens" ]]; then
+    echo "$REPO_ROOT/node_modules/.bin/signal-lens"
     return
   fi
   if [[ -f "$REPO_ROOT/dist/cli.js" ]]; then
     echo "node $REPO_ROOT/dist/cli.js"
     return
   fi
-  # Skill may live inside review-mcp repo; walk up for dist/cli.js
+  # Skill may live inside signal-lens repo; walk up for dist/cli.js
   local dir="$REPO_ROOT"
   for _ in 1 2 3 4 5; do
     if [[ -f "$dir/dist/cli.js" ]]; then
@@ -74,31 +74,31 @@ resolve_review_mcp() {
     dir="$(dirname "$dir")"
   done
   if command -v npx >/dev/null 2>&1; then
-    echo "npx -y review-mcp"
+    echo "npx -y signal-lens"
     return
   fi
   echo ""
 }
 
-REVIEW_MCP="$(resolve_review_mcp)"
-if [[ -z "$REVIEW_MCP" ]]; then
-  echo '{"error":"review-mcp not found. Install: npm install -g review-mcp or npm run build in repo"}' >&2
+SIGNAL_LENS="$(resolve_signal_lens)"
+if [[ -z "$SIGNAL_LENS" ]]; then
+  echo '{"error":"signal-lens not found. Install: npm install -g signal-lens or npm run build in repo"}' >&2
   exit 127
 fi
 
 if [[ -z "$OUTPUT_DIR" ]]; then
-  OUTPUT_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t review-mcp)"
+  OUTPUT_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t signal-lens)"
 fi
 mkdir -p "$OUTPUT_DIR"
-REPORT_BASE="$OUTPUT_DIR/review-mcp-report"
+REPORT_BASE="$OUTPUT_DIR/signal-lens-report"
 
-run_review_mcp() {
+run_signal_lens() {
   # shellcheck disable=SC2086
-  (cd "$REPO_ROOT" && eval "$REVIEW_MCP" "$@")
+  (cd "$REPO_ROOT" && eval "$SIGNAL_LENS" "$@")
 }
 
 if [[ "$SKIP_INDEX" -eq 0 ]]; then
-  run_review_mcp index --repo "$REPO_ROOT" >/dev/null 2>&1 || true
+  run_signal_lens index --repo "$REPO_ROOT" >/dev/null 2>&1 || true
 fi
 
 REVIEW_CMD=(review --base "$BASE_REF" --head "$HEAD_REF" --repo "$REPO_ROOT" --output all --output-file "$REPORT_BASE")
@@ -107,11 +107,11 @@ if [[ "$STATIC_ONLY" -eq 1 ]]; then
 fi
 
 set +e
-run_review_mcp "${REVIEW_CMD[@]}"
+run_signal_lens "${REVIEW_CMD[@]}"
 REVIEW_EXIT=$?
 set -e
 
-echo "--- review-mcp-run-meta ---"
+echo "--- signal-lens-run-meta ---"
 echo "base=$BASE_REF"
 echo "head=$HEAD_REF"
 echo "repo=$REPO_ROOT"
@@ -119,13 +119,13 @@ echo "report_json=$REPORT_BASE.json"
 echo "report_md=$REPORT_BASE.md"
 echo "report_sarif=$REPORT_BASE.sarif"
 echo "exit_code=$REVIEW_EXIT"
-echo "--- review-mcp-report-json ---"
+echo "--- signal-lens-report-json ---"
 if [[ -f "$REPORT_BASE.json" ]]; then
   cat "$REPORT_BASE.json"
 else
   echo '{"findings":[],"error":"no report generated"}'
 fi
-echo "--- review-mcp-report-markdown ---"
+echo "--- signal-lens-report-markdown ---"
 if [[ -f "$REPORT_BASE.md" ]]; then
   cat "$REPORT_BASE.md"
 fi

@@ -1,4 +1,4 @@
-# review-mcp Severity Rubric
+# signal-lens Severity Rubric
 
 Use this when summarizing findings for the maintainer.
 
@@ -21,7 +21,7 @@ Use this when summarizing findings for the maintainer.
 If the user disagrees with a finding, run:
 
 ```bash
-review-mcp feedback --finding-id <ID> --type false-positive --reason "<why>"
+signal-lens feedback --finding-id <ID> --type false-positive --reason "<why>"
 ```
 
 Recorded feedback is applied on the next review in this repository.

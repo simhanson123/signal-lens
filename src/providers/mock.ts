@@ -5,11 +5,11 @@ export class MockProvider implements AiProvider {
   name = "mock";
 
   isAvailable(): boolean {
-    return process.env.REVIEW_MCP_PROVIDER === "mock" || process.env.NODE_ENV === "test";
+    return process.env.SIGNAL_LENS_PROVIDER === "mock" || process.env.NODE_ENV === "test";
   }
 
   unavailableReason(): string {
-    return "Set REVIEW_MCP_PROVIDER=mock to enable mock provider.";
+    return "Set SIGNAL_LENS_PROVIDER=mock to enable mock provider.";
   }
 
   async review(request: AiReviewRequest): Promise<AiReviewResponse> {

@@ -17,9 +17,9 @@ export function toSarif(result: ReviewResult): string {
     runs: [{
       tool: {
         driver: {
-          name: "review-mcp",
+          name: "signal-lens",
           version: result.version,
-          informationUri: "https://github.com/simhanson123/review-mcp",
+          informationUri: "https://github.com/simhanson123/signal-lens",
           rules,
         },
       },

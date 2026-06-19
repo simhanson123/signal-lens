@@ -9,8 +9,8 @@ SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(pwd)"
 EXTRA_ARGS=("$@")
 
-resolve_review_mcp() {
-  if command -v review-mcp >/dev/null 2>&1; then echo "review-mcp"; return; fi
+resolve_signal_lens() {
+  if command -v signal-lens >/dev/null 2>&1; then echo "signal-lens"; return; fi
   if [[ -f "$REPO_ROOT/dist/cli.js" ]]; then echo "node $REPO_ROOT/dist/cli.js"; return; fi
   local dir="$REPO_ROOT"
   for _ in 1 2 3 4 5; do
@@ -20,16 +20,16 @@ resolve_review_mcp() {
   echo ""
 }
 
-REVIEW_MCP="$(resolve_review_mcp)"
+REVIEW_MCP="$(resolve_signal_lens)"
 if [[ -z "$REVIEW_MCP" ]]; then
-  echo '{"error":"review-mcp not found"}' >&2
+  echo '{"error":"signal-lens not found"}' >&2
   exit 127
 fi
 
-echo "--- review-mcp-capabilities ---"
+echo "--- signal-lens-capabilities ---"
 # shellcheck disable=SC2086
 (cd "$REPO_ROOT" && eval "$REVIEW_MCP" capabilities --repo "$REPO_ROOT")
-echo "--- review-mcp-routing-hint ---"
+echo "--- signal-lens-routing-hint ---"
 cat <<EOF
 {
   "auto": true,
@@ -40,5 +40,5 @@ cat <<EOF
 }
 EOF
 
-echo "--- review-mcp-cli-review ---"
+echo "--- signal-lens-cli-review ---"
 exec bash "$SCRIPT_DIR/run-review.sh" "${EXTRA_ARGS[@]}"

@@ -1,4 +1,4 @@
-export interface ReviewMcpConfig {
+export interface SignalLensConfig {
   version: number;
   ai: {
     enabled: boolean;
@@ -24,7 +24,7 @@ export interface ReviewMcpConfig {
   };
 }
 
-export const DEFAULT_CONFIG: ReviewMcpConfig = {
+export const DEFAULT_CONFIG: SignalLensConfig = {
   version: 1,
   ai: {
     enabled: true,

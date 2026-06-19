@@ -1,6 +1,6 @@
 # Security
 
-`review-mcp` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v1.3.2.
+`signal-lens` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v2.0.0.
 
 ## Principles
 
@@ -31,7 +31,7 @@ permissions:
 
 Use `post-comment: true` or `post-inline-comments: true` only when comment posting is intended. Keep review analysis in a separate step from write operations where possible.
 
-### Inline comments (v1.1.0)
+### Inline comments (v2.0.0)
 
 Inline comments are posted only for findings with `evidence.file` and `evidence.line`. The Action posts via `pull-requests: write` in the same job as analysis when enabled. Maximum 20 comments per run (configurable via CLI `--max-inline`).
 

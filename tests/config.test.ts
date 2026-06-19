@@ -9,7 +9,7 @@ describe("config", () => {
     expect(config.analyzers["ci-weakening"]).toBe(true);
   });
 
-  it("loads .review-mcp.yml from repo root", () => {
+  it("loads .signal-lens.yml from repo root", () => {
     const config = loadConfig(process.cwd());
     expect(config.rules.architecture.length).toBeGreaterThan(0);
   });

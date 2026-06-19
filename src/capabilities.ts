@@ -46,14 +46,14 @@ export interface CapabilitiesReport {
 
 export function resolveCliPath(repoRoot: string): string | null {
   try {
-    const which = process.platform === "win32" ? "where review-mcp" : "command -v review-mcp";
+    const which = process.platform === "win32" ? "where signal-lens" : "command -v signal-lens";
     const path = execSync(which, { encoding: "utf-8" }).trim().split("\n")[0];
     if (path) return path;
   } catch {
     /* continue */
   }
 
-  const localBin = resolve(repoRoot, "node_modules/.bin/review-mcp");
+  const localBin = resolve(repoRoot, "node_modules/.bin/signal-lens");
   if (existsSync(localBin)) return localBin;
 
   const distCli = resolve(repoRoot, "dist/cli.js");
@@ -82,7 +82,7 @@ export function buildCapabilitiesReport(repoRoot = process.cwd()): CapabilitiesR
   const skillScript = "bash <skill-dir>/scripts/run-review.sh --static-only";
 
   return {
-    version: "1.3.2",
+    version: "2.0.0",
     cli: {
       available: cliPath !== null,
       resolvedPath: cliPath,
@@ -90,7 +90,7 @@ export function buildCapabilitiesReport(repoRoot = process.cwd()): CapabilitiesR
       isGitRepo,
     },
     mcp: {
-      serverCommand: "review-mcp mcp",
+      serverCommand: "signal-lens mcp",
       tools: MCP_TOOLS,
       resources: MCP_RESOURCES,
       hostConnected: "unknown",
@@ -99,8 +99,8 @@ export function buildCapabilitiesReport(repoRoot = process.cwd()): CapabilitiesR
       prefer: "mcp-when-connected",
       forAgent:
         "If MCP tools review_pr (or scan_ci_weakening) appear in your available tools, use MCP. " +
-        "Otherwise run the CLI via run-review.sh or review-mcp review.",
-      cliFallback: `review-mcp review --base main --head HEAD --static-only --output json`,
+        "Otherwise run the CLI via run-review.sh or signal-lens review.",
+      cliFallback: `signal-lens review --base main --head HEAD --static-only --output json`,
       detection:
         `Check your tool list for: ${MCP_TOOLS.slice(0, 4).join(", ")}. ` +
         "Present = MCP path. Absent = CLI path.",

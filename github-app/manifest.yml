@@ -1,10 +1,10 @@
-name: review-mcp
+name: signal-lens
 description: Context-first maintainer PR review and automation
-url: https://github.com/simhanson123/review-mcp
+url: https://github.com/simhanson123/signal-lens
 hook_attributes:
   url: https://your-host.example.com/webhook
   active: true
-redirect_url: https://github.com/simhanson123/review-mcp
+redirect_url: https://github.com/simhanson123/signal-lens
 callback_urls:
   - https://your-host.example.com/callback
 public: true

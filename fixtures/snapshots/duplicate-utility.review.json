@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "generatedAt": "2026-06-16T18:06:06.589Z",
+  "generatedAt": "2026-06-19T18:08:02.133Z",
   "base": "main",
   "head": "feature/fixture",
   "summary": {
@@ -24,7 +24,7 @@
       "severity": "medium",
       "category": "duplicate-utility",
       "title": "Symbol \"runReview\" found via git grep",
-      "reason": "Fallback grep detected existing references (run `review-mcp index` for tree-sitter accuracy).",
+      "reason": "Fallback grep detected existing references (run `signal-lens index` for tree-sitter accuracy).",
       "evidence": [
         {
           "file": "fixtures/snapshots/duplicate-utility.json",

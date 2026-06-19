@@ -66,7 +66,7 @@ export async function runReview(
 
   const aiStatus = resolveAiStatus(config, options);
   const result: ReviewResult = {
-    version: "1.3.2",
+    version: "2.0.0",
     generatedAt: new Date().toISOString(),
     base: context.base,
     head: context.head,
@@ -114,7 +114,7 @@ function resolveAiStatus(
     return { status: "disabled", reason: "AI review disabled by configuration or --static-only flag" };
   }
 
-  const provider = getAvailableProvider(process.env.REVIEW_MCP_PROVIDER, config.ai.provider);
+  const provider = getAvailableProvider(process.env.SIGNAL_LENS_PROVIDER, config.ai.provider);
   if (!provider) {
     return {
       status: "skipped",

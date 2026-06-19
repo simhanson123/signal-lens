@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for review-mcp
+about: Suggest an idea for signal-lens
 title: "[feature] "
 labels: enhancement
 ---

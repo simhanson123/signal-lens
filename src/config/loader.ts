@@ -1,23 +1,33 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { DEFAULT_CONFIG, type ReviewMcpConfig } from "./schema.js";
+import { DEFAULT_CONFIG, type SignalLensConfig } from "./schema.js";
 
-export function loadConfig(repoRoot: string): ReviewMcpConfig {
-  const configPath = resolve(repoRoot, ".review-mcp.yml");
+function resolveConfigPath(repoRoot: string): string | null {
+  const primary = resolve(repoRoot, ".signal-lens.yml");
+  if (existsSync(primary)) return primary;
 
-  if (!existsSync(configPath)) {
+  const legacy = resolve(repoRoot, ".review-mcp.yml");
+  if (existsSync(legacy)) return legacy;
+
+  return null;
+}
+
+export function loadConfig(repoRoot: string): SignalLensConfig {
+  const configPath = resolveConfigPath(repoRoot);
+
+  if (!configPath) {
     return { ...DEFAULT_CONFIG };
   }
 
-  const raw = parseYaml(readFileSync(configPath, "utf-8")) as Partial<ReviewMcpConfig>;
+  const raw = parseYaml(readFileSync(configPath, "utf-8")) as Partial<SignalLensConfig>;
   return mergeConfig(DEFAULT_CONFIG, raw);
 }
 
 function mergeConfig(
-  base: ReviewMcpConfig,
-  override: Partial<ReviewMcpConfig>
-): ReviewMcpConfig {
+  base: SignalLensConfig,
+  override: Partial<SignalLensConfig>
+): SignalLensConfig {
   return {
     version: override.version ?? base.version,
     ai: {
@@ -37,7 +47,7 @@ function mergeConfig(
   };
 }
 
-export function shouldRunAiReview(config: ReviewMcpConfig): boolean {
+export function shouldRunAiReview(config: SignalLensConfig): boolean {
   if (!config.ai.enabled) return false;
   if (config.analyzers["ai-review"] === false) return false;
   if (config.analyzers["ai-review"] === "auto") return true;

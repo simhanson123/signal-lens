@@ -100,7 +100,7 @@ export function draftReleaseNotes(version: string, prs: MergedPr[]): ReleaseDraf
     changelog: sections.join("\n\n"),
     breakingChanges: breaking,
     migrationNotes: breaking.length
-      ? ["Review breaking changes above. Update `.review-mcp.yml` and CI workflows if needed."]
+      ? ["Review breaking changes above. Update `.signal-lens.yml` and CI workflows if needed."]
       : [],
   };
 }

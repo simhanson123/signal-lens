@@ -38,7 +38,7 @@ describe("toSarif", () => {
   it("produces valid SARIF 2.1.0 output", () => {
     const sarif = JSON.parse(toSarif(sample));
     expect(sarif.version).toBe("2.1.0");
-    expect(sarif.runs[0].tool.driver.name).toBe("review-mcp");
+    expect(sarif.runs[0].tool.driver.name).toBe("signal-lens");
     expect(sarif.runs[0].results).toHaveLength(1);
     expect(sarif.runs[0].results[0].level).toBe("error");
   });

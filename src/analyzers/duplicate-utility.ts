@@ -52,7 +52,7 @@ export const duplicateUtilityAnalyzer: Analyzer = {
           evidence: sameName.map((s) => ({ file: s.file, line: s.line, symbol: s.name })),
           suggestedAction: `Reuse existing "${symbol.name}" instead of duplicating.`,
           confidence: 0.92,
-          repro: `review-mcp index && git grep -n "${symbol.name}"`,
+          repro: `signal-lens index && git grep -n "${symbol.name}"`,
         });
         continue;
       }
@@ -122,7 +122,7 @@ function legacyGrepAnalysis(
           severity: "medium",
           category: "duplicate-utility",
           title: `Symbol "${symbol.name}" found via git grep`,
-          reason: "Fallback grep detected existing references (run `review-mcp index` for tree-sitter accuracy).",
+          reason: "Fallback grep detected existing references (run `signal-lens index` for tree-sitter accuracy).",
           evidence: matches.slice(0, 3).map((l) => {
             const colon = l.indexOf(":");
             const file = l.slice(0, colon);

@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-Please report security vulnerabilities via [GitHub Security Advisories](https://github.com/simhanson123/review-mcp/security/advisories/new) rather than public issues.
+Please report security vulnerabilities via [GitHub Security Advisories](https://github.com/simhanson123/signal-lens/security/advisories/new) rather than public issues.
 
 We aim to respond within 72 hours.
 

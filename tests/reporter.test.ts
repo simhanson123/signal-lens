@@ -37,7 +37,7 @@ const sampleResult: ReviewResult = {
 describe("reporter", () => {
   it("generates markdown report", () => {
     const md = toMarkdown(sampleResult);
-    expect(md).toContain("## review-mcp Report");
+    expect(md).toContain("## Signal Lens Report");
     expect(md).toContain("CI step set to continue on error");
     expect(md).toContain("🔴 HIGH");
   });

@@ -59,14 +59,14 @@ export async function startGitHubAppServer(options: GitHubAppOptions): Promise<v
       owner,
       repo,
       issue_number: payload.pull_request.number,
-      body: "review-mcp: automatic review triggered. Reply with `/review-mcp explain` for details.",
+      body: "signal-lens: automatic review triggered. Reply with `/signal-lens explain` for details.",
     });
   });
 
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     if (req.method === "GET" && req.url === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ok", service: "review-mcp-app" }));
+      res.end(JSON.stringify({ status: "ok", service: "signal-lens-app" }));
       return;
     }
 
@@ -91,5 +91,5 @@ export async function startGitHubAppServer(options: GitHubAppOptions): Promise<v
   });
 
   await new Promise<void>((resolve) => server.listen(port, resolve));
-  console.log(`review-mcp GitHub App webhook server listening on :${port}`);
+  console.log(`signal-lens GitHub App webhook server listening on :${port}`);
 }

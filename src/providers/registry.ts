@@ -21,7 +21,11 @@ export function getAvailableProvider(
   preferred?: string,
   configProvider: string = "auto"
 ): AiProvider | null {
-  const pref = preferred ?? process.env.REVIEW_MCP_PROVIDER ?? configProvider;
+  const pref =
+    preferred ??
+    process.env.SIGNAL_LENS_PROVIDER ??
+    process.env.REVIEW_MCP_PROVIDER ??
+    configProvider;
 
   if (pref !== "auto") {
     const p = getProvider(pref);

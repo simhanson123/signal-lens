@@ -40,9 +40,9 @@ describe("inline-comments", () => {
 
   it("formats inline comment with severity badge and slash hint", () => {
     const body = formatInlineComment(sampleFinding);
-    expect(body).toContain("**[review-mcp HIGH]**");
+    expect(body).toContain("**[Signal Lens HIGH]**");
     expect(body).toContain("Unsafe eval usage");
-    expect(body).toContain("/review-mcp false-positive sec-1");
+    expect(body).toContain("/signal-lens false-positive sec-1");
   });
 
   it("returns error when no GitHub token", async () => {

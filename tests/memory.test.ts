@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { resetDatabase } from "../src/memory/database.js";
 import { filterByFeedback, loadFeedback, recordFeedback } from "../src/memory/feedback.js";
 
-const STORE = resolve(process.cwd(), ".review-mcp");
+const STORE = resolve(process.cwd(), ".signal-lens");
 
 afterEach(() => {
   resetDatabase();

@@ -1,20 +1,20 @@
-# review-mcp
+# Signal Lens
 
-**Context-first PR review for open-source maintainers**
+**Context-first maintainer PR review for open-source repos**
 
 Catches what diff-only review misses: CI weakening, security boundaries, duplicate utilities, and missing tests — with evidence, not opinions.
 
-**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v1.3.2
+**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v2.0.0
 
-**Repository:** https://github.com/simhanson123/review-mcp
+**Repository:** https://github.com/simhanson123/signal-lens
 
-> The name `review-mcp` is the project slug (CLI, npm, Action). The product is **maintainer PR review infrastructure**, not an MCP-only tool.
+> **Signal Lens** (`signal-lens`) is context-first maintainer PR review — not an MCP-only tool. Slug: CLI, npm, Action, GitHub repo.
 
 ## Why maintainers use it
 
-AI and agent-generated PRs look clean but hide risks in workflows, tests, and security boundaries. `review-mcp` compresses those signals so you can decide faster:
+AI and agent-generated PRs look clean but hide risks in workflows, tests, and security boundaries. `signal-lens` compresses those signals so you can decide faster:
 
-| Risk | What review-mcp checks |
+| Risk | What signal-lens checks |
 |------|------------------------|
 | CI weakening | `continue-on-error`, removed tests, coverage drops |
 | Security boundaries | Untrusted input in workflows, hardcoded secrets |
@@ -25,16 +25,16 @@ AI and agent-generated PRs look clean but hide risks in workflows, tests, and se
 
 | Area | Commands / Surfaces |
 |------|---------------------|
-| **Agent Skill** | `/review-mcp` — Claude Code + Grok/Codex (auto MCP or CLI) |
-| **PR Review** | `review-mcp review`, GitHub Action |
-| **Inline Comments** | `review-mcp post-inline`, `review --post-inline` |
-| **Tree-sitter Index** | `review-mcp index` → SQLite symbol + import graph |
-| **Issue Triage** | `review-mcp triage` |
-| **Release Notes** | `review-mcp release` |
-| **Auto-fix Draft** | `review-mcp fix`, `/review-mcp fix` |
-| **Slash Commands** | `/review-mcp explain`, `false-positive`, `fix`, `release-notes` |
-| **MCP Server** *(optional)* | `review-mcp mcp` — 5 resources, 7 tools, 4 prompts |
-| **GitHub App** *(experimental)* | `review-mcp serve` + `github-app/manifest.yml` |
+| **Agent Skill** | `/signal-lens` — Claude Code + Grok/Codex (auto MCP or CLI) |
+| **PR Review** | `signal-lens review`, GitHub Action |
+| **Inline Comments** | `signal-lens post-inline`, `review --post-inline` |
+| **Tree-sitter Index** | `signal-lens index` → SQLite symbol + import graph |
+| **Issue Triage** | `signal-lens triage` |
+| **Release Notes** | `signal-lens release` |
+| **Auto-fix Draft** | `signal-lens fix`, `/signal-lens fix` |
+| **Slash Commands** | `/signal-lens explain`, `false-positive`, `fix`, `release-notes` |
+| **MCP Server** *(optional)* | `signal-lens mcp` — 5 resources, 7 tools, 4 prompts |
+| **GitHub App** *(experimental)* | `signal-lens serve` + `github-app/manifest.yml` |
 | **AI Providers** | OpenAI, Anthropic, **Ollama (local)**, mock |
 | **Output** | Markdown, JSON, SARIF (Code Scanning) |
 
@@ -46,8 +46,8 @@ Static analyzers run without any API key. For AI review without cloud APIs, use 
 
 ```bash
 # From source (npm package not yet published)
-git clone https://github.com/simhanson123/review-mcp.git
-cd review-mcp && npm install && npm run build
+git clone https://github.com/simhanson123/signal-lens.git
+cd signal-lens && npm install && npm run build
 
 # Index repository symbols
 node dist/cli.js index
@@ -59,27 +59,27 @@ node dist/cli.js review --base main --head HEAD --static-only
 ## Agent Skill (recommended entry point)
 
 ```
-/review-mcp
-/review-mcp --branch my-feature
+/signal-lens
+/signal-lens --branch my-feature
 ```
 
 Copy into your OSS repo:
 
 ```bash
-cp -r skills/review-mcp .claude/skills/review-mcp   # Claude Code
-cp -r skills/review-mcp .grok/skills/review-mcp     # Grok / Codex
+cp -r skills/signal-lens .claude/skills/signal-lens   # Claude Code
+cp -r skills/signal-lens .grok/skills/signal-lens     # Grok / Codex
 ```
 
 Auto-routes: MCP tools when connected, else CLI. See [docs/skills.md](docs/skills.md).
 
 ```bash
-review-mcp capabilities
+signal-lens capabilities
 ```
 
 ## GitHub Action
 
 ```yaml
-- uses: simhanson123/review-mcp/action.yml@v1.3.2
+- uses: simhanson123/signal-lens/action.yml@v2.0.0
   with:
     output-format: all
     post-comment: "true"
@@ -90,17 +90,17 @@ review-mcp capabilities
 ## CLI
 
 ```bash
-review-mcp review --base main --head HEAD --static-only
-review-mcp review --base main --head HEAD --output all -f report
-review-mcp index
-review-mcp capabilities
+signal-lens review --base main --head HEAD --static-only
+signal-lens review --base main --head HEAD --output all -f report
+signal-lens index
+signal-lens capabilities
 ```
 
 ## Ollama (Local AI Review)
 
 ```bash
 ollama pull qwen2.5-coder:7b
-REVIEW_MCP_PROVIDER=ollama review-mcp review --base main --head HEAD
+SIGNAL_LENS_PROVIDER=ollama signal-lens review --base main --head HEAD
 ```
 
 ## MCP (optional integration)
@@ -110,8 +110,8 @@ For Cursor, Claude Desktop, or other MCP hosts:
 ```json
 {
   "mcpServers": {
-    "review-mcp": {
-      "command": "review-mcp",
+    "signal-lens": {
+      "command": "signal-lens",
       "args": ["mcp"],
       "cwd": "/path/to/your/repo"
     }
@@ -121,13 +121,13 @@ For Cursor, Claude Desktop, or other MCP hosts:
 
 ## Configuration
 
-Copy [`.review-mcp.yml`](.review-mcp.yml) to your repo root.
+Copy [`.signal-lens.yml`](.signal-lens.yml) to your repo root.
 
 ## Development
 
 ```bash
-git clone https://github.com/simhanson123/review-mcp.git
-cd review-mcp
+git clone https://github.com/simhanson123/signal-lens.git
+cd signal-lens
 npm install
 npm test
 npm run build
