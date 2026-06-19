@@ -1,5 +1,5 @@
 name: review-mcp
-description: MCP-based PR review and maintainer automation
+description: Context-first maintainer PR review and automation
 url: https://github.com/simhanson123/review-mcp
 hook_attributes:
   url: https://your-host.example.com/webhook

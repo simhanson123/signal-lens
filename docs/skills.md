@@ -1,6 +1,6 @@
 # Agent Skills (Claude Code + Grok/Codex)
 
-`review-mcp` ships a cross-host skill that orchestrates the CLI for context-first PR review.
+`review-mcp` is a **maintainer PR review platform**. The recommended entry point is the **Agent Skill** (`/review-mcp`), which auto-routes to MCP or CLI.
 
 ## Locations in this repo
 
@@ -64,12 +64,14 @@ review-mcp capabilities
 bash skills/review-mcp/scripts/run-review.sh --base main --head HEAD --static-only
 ```
 
-## Skill + MCP together
+## Layers
 
 | Layer | Role |
 |-------|------|
-| **Skill** | When to review, how to summarize, maintainer workflow |
-| **CLI** | Evidence-based findings (this script) |
-| **MCP** | `review-mcp mcp` for tool/resource access in MCP hosts |
+| **Skill** | Primary entry — when to review, how to summarize |
+| **CLI / Action** | Evidence-based findings, CI integration |
+| **MCP** *(optional)* | Tool/resource access for MCP-connected hosts |
+
+> Product name slug: `review-mcp`. Product identity: maintainer PR review, not MCP-only tooling.
 
 See [Agent Skills standard](https://agentskills.io) and [Claude Code skills](https://code.claude.com/docs/en/skills).

@@ -23,7 +23,7 @@ import { runReview } from "./orchestrator/review.js";
 
 const program = new Command();
 
-program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.3.1");
+program.name("review-mcp").description("Context-first PR review for open-source maintainers").version("1.3.2");
 
 program
   .command("review")
@@ -111,7 +111,7 @@ program
 
 program
   .command("mcp")
-  .description("Start MCP Context Server (stdio)")
+  .description("Start optional MCP server for tool/resource access (stdio)")
   .option("--repo <path>", "Repository root", process.cwd())
   .action(async (opts) => startMcpServer(opts.repo));
 

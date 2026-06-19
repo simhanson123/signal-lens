@@ -1,7 +1,7 @@
 {
   "name": "review-mcp",
-  "version": "1.3.1",
-  "description": "MCP-based AI PR review and maintainer automation agent",
+  "version": "1.3.2",
+  "description": "Context-first PR review for open-source maintainers (Skill, CLI, Action, optional MCP)",
   "type": "module",
   "bin": {
     "review-mcp": "./dist/cli.js"
@@ -41,14 +41,17 @@
     "prepublishOnly": "npm run lint && npm test && npm run build"
   },
   "keywords": [
-    "mcp",
     "pull-request",
     "code-review",
-    "github-action",
     "maintainer",
     "open-source",
+    "github-action",
+    "agent-skills",
+    "ci-weakening",
+    "security",
     "sarif",
-    "tree-sitter"
+    "tree-sitter",
+    "mcp"
   ],
   "license": "MIT",
   "engines": {

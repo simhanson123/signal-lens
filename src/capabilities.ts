@@ -82,7 +82,7 @@ export function buildCapabilitiesReport(repoRoot = process.cwd()): CapabilitiesR
   const skillScript = "bash <skill-dir>/scripts/run-review.sh --static-only";
 
   return {
-    version: "1.3.1",
+    version: "1.3.2",
     cli: {
       available: cliPath !== null,
       resolvedPath: cliPath,

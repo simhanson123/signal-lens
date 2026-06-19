@@ -4,7 +4,7 @@
 
 **Repository:** https://github.com/simhanson123/review-mcp
 
-**Current release:** v1.2.0 (43 tests, 4 fixture scenarios)
+**Current release:** v1.3.2 (44 tests, 4 fixture scenarios)
 
 ## Application Readiness Checklist
 
@@ -13,7 +13,7 @@
 | Public GitHub repository | Done |
 | MIT license | Done |
 | README (problem, install, Action example) | Done |
-| `.github/workflows/review-mcp.yml` | Done (v1.2.0) |
+| `.github/workflows/review-mcp.yml` | Done (v1.3.2) |
 | Fixture review snapshots (3+) | Done (4 scenarios) |
 | `docs/architecture.md` | Done |
 | `docs/security.md` | Done |
@@ -24,15 +24,15 @@
 
 ## Project Positioning
 
-> `review-mcp` is an open-source maintainer automation agent that uses MCP to provide repository-level context for AI-powered pull request review, issue triage, and release workflows. It helps maintainers review agent-generated PRs by detecting CI weakening, duplicated utilities, security boundary regressions, missing tests, and release risks with evidence-based findings.
+> `review-mcp` is an open-source maintainer PR review platform that catches what diff-only review misses — CI weakening, security boundary regressions, duplicate utilities, and missing tests — with evidence-based findings. It ships as Agent Skills, CLI, GitHub Action, and optional MCP integration for repository-level context in AI-powered review, issue triage, and release workflows.
 
 ## Why This Repository Qualifies
 
-> review-mcp helps OSS maintainers handle the growing volume of AI-generated pull requests. It uses MCP to expose repository context, maintainer rules, prior review feedback, and release metadata to AI reviewers. The project directly targets PR review, maintainer automation, and release workflows by detecting CI weakening, duplicated utilities, security boundary regressions, and missing tests with evidence-based findings.
+> review-mcp helps OSS maintainers handle the growing volume of AI-generated pull requests. It provides context-first review through static analyzers, Tree-sitter indexing, maintainer rules, and feedback memory — exposed via Skills, CLI, Action, and MCP. The project directly targets PR review, maintainer automation, and release workflows.
 
 ## Product Usage Plan
 
-> We will use Codex and OpenAI API credits to run multi-pass PR reviews, summarize repository architecture, classify risk areas, generate maintainer-focused review comments, triage issues, and draft release notes. API usage is central to the product: each PR review combines diff analysis, repository context retrieval through MCP, security boundary checks, and structured output generation for GitHub comments, SARIF, and release artifacts.
+> We will use Codex and OpenAI API credits to run multi-pass PR reviews, summarize repository architecture, classify risk areas, generate maintainer-focused review comments, triage issues, and draft release notes. API usage is central to the product: each PR review combines diff analysis, repository context (index + rules + optional MCP), security boundary checks, and structured output for GitHub comments, SARIF, and release artifacts.
 
 ## Responsible AI Alignment
 
@@ -47,14 +47,14 @@ OpenAI's workplace AI fundamentals map directly to how `review-mcp` is designed:
 
 The maintainer's real work task this project improves: **reviewing AI-generated pull requests with less fatigue and more evidence**.
 
-## v1.2.0 Capabilities (Shipped)
+## v1.3.2 Capabilities (Shipped)
 
-- **Ollama provider** — local LLM review without API keys (demonstrates multi-provider design)
-- **Inline PR comments** — line-level findings via `post-inline` / `--post-inline`
-- **Test coverage analyzer** — flags source changes without test updates
-- **MCP `scan_test_coverage`** — test-coverage analyzer exposed as MCP tool
-- **Cursor MCP descriptors** — `mcps/review-mcp/` for IDE tool schema discovery
-- **GitHub Action** — `post-inline-comments` input
+- **Agent Skills** — `/review-mcp` for Claude Code + Grok/Codex (primary entry point)
+- **Auto MCP/CLI routing** — Skill + `capabilities` command
+- **Static analyzers** — CI weakening, security boundaries, duplicates, test coverage
+- **Ollama provider** — local LLM without API keys
+- **Inline PR comments**, SARIF, GitHub Action
+- **Optional MCP server** — 7 tools, 5 resources (integration layer, not product identity)
 
 ## API Credit Usage Breakdown
 
@@ -93,4 +93,4 @@ Codex Security will validate:
 2. Submit application at https://developers.openai.com/community/codex-for-oss
 3. Link repository: https://github.com/simhanson123/review-mcp
 4. Use the positioning and usage plan text above in the application form
-5. Mention v1.2.0 release, 43 tests, MCP server, and maintainer automation scope
+5. Mention v1.3.2 release, 44 tests, Agent Skills + maintainer PR review positioning

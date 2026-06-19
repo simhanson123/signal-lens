@@ -1,98 +1,85 @@
 # review-mcp
 
-**MCP-based AI PR review and maintainer automation agent** — v1.3.1
+**Context-first PR review for open-source maintainers**
 
-Context-first PR review for open-source maintainers handling AI-generated pull requests.
+Catches what diff-only review misses: CI weakening, security boundaries, duplicate utilities, and missing tests — with evidence, not opinions.
+
+**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v1.3.2
 
 **Repository:** https://github.com/simhanson123/review-mcp
+
+> The name `review-mcp` is the project slug (CLI, npm, Action). The product is **maintainer PR review infrastructure**, not an MCP-only tool.
+
+## Why maintainers use it
+
+AI and agent-generated PRs look clean but hide risks in workflows, tests, and security boundaries. `review-mcp` compresses those signals so you can decide faster:
+
+| Risk | What review-mcp checks |
+|------|------------------------|
+| CI weakening | `continue-on-error`, removed tests, coverage drops |
+| Security boundaries | Untrusted input in workflows, hardcoded secrets |
+| Duplicate utilities | New helpers vs existing symbols (Tree-sitter index) |
+| Test gaps | Source changes without test updates |
 
 ## Features
 
 | Area | Commands / Surfaces |
 |------|---------------------|
-| PR Review | `review-mcp review`, GitHub Action, MCP `review_pr` |
-| Inline Comments | `review-mcp post-inline`, `review --post-inline` |
-| Tree-sitter Index | `review-mcp index` → SQLite symbol + import graph |
-| MCP Server | `review-mcp mcp` — 5 resources, 7 tools, 4 prompts |
-| Issue Triage | `review-mcp triage` |
-| Release Notes | `review-mcp release`, MCP `draft_release_notes` |
-| Auto-fix Draft | `review-mcp fix`, `/review-mcp fix` |
-| Slash Commands | `/review-mcp explain`, `false-positive`, `fix`, `release-notes` |
-| Agent Skills | `/review-mcp` — Claude Code + Grok/Codex (`skills/review-mcp/`) |
-| GitHub App | `review-mcp serve` + `github-app/manifest.yml` (experimental) |
-| AI Providers | OpenAI, Anthropic, **Ollama (local)**, mock |
-| Output | Markdown, JSON, SARIF (Code Scanning) |
+| **Agent Skill** | `/review-mcp` — Claude Code + Grok/Codex (auto MCP or CLI) |
+| **PR Review** | `review-mcp review`, GitHub Action |
+| **Inline Comments** | `review-mcp post-inline`, `review --post-inline` |
+| **Tree-sitter Index** | `review-mcp index` → SQLite symbol + import graph |
+| **Issue Triage** | `review-mcp triage` |
+| **Release Notes** | `review-mcp release` |
+| **Auto-fix Draft** | `review-mcp fix`, `/review-mcp fix` |
+| **Slash Commands** | `/review-mcp explain`, `false-positive`, `fix`, `release-notes` |
+| **MCP Server** *(optional)* | `review-mcp mcp` — 5 resources, 7 tools, 4 prompts |
+| **GitHub App** *(experimental)* | `review-mcp serve` + `github-app/manifest.yml` |
+| **AI Providers** | OpenAI, Anthropic, **Ollama (local)**, mock |
+| **Output** | Markdown, JSON, SARIF (Code Scanning) |
 
 ### No API key required
 
-Static analyzers run without any API key. For AI review without cloud APIs, use **Ollama** — a free tool that runs LLMs on your own machine.
+Static analyzers run without any API key. For AI review without cloud APIs, use **Ollama**.
 
 ## Quick Start
 
 ```bash
-npm install -g review-mcp
+# From source (npm package not yet published)
+git clone https://github.com/simhanson123/review-mcp.git
+cd review-mcp && npm install && npm run build
 
-# Index repository symbols (tree-sitter)
-review-mcp index
+# Index repository symbols
+node dist/cli.js index
 
-# Review branch
-review-mcp review --base main --head HEAD
-
-# All output formats
-review-mcp review --base main --head HEAD --output all -f report
-
-# Static only (no AI)
-review-mcp review --base main --head HEAD --static-only
+# Review branch (static — no API key)
+node dist/cli.js review --base main --head HEAD --static-only
 ```
 
-## Ollama (Local AI Review)
+## Agent Skill (recommended entry point)
 
-[Ollama](https://ollama.com) runs open-source LLMs locally — no API key, no data sent to the cloud.
+```
+/review-mcp
+/review-mcp --branch my-feature
+```
+
+Copy into your OSS repo:
 
 ```bash
-# 1. Install Ollama from https://ollama.com
-# 2. Pull a code-focused model
-ollama pull qwen2.5-coder:7b
-
-# 3. Run review with Ollama
-REVIEW_MCP_PROVIDER=ollama review-mcp review --base main --head HEAD
+cp -r skills/review-mcp .claude/skills/review-mcp   # Claude Code
+cp -r skills/review-mcp .grok/skills/review-mcp     # Grok / Codex
 ```
 
-Or configure in `.review-mcp.yml`:
-
-```yaml
-ai:
-  provider: ollama
-  model: qwen2.5-coder:7b
-  ollama:
-    baseUrl: http://localhost:11434
-```
-
-Provider auto-detection order: OpenAI → Anthropic → Ollama → mock.
-
-## Inline PR Comments
-
-Post findings directly on the changed lines in a GitHub PR (requires `file` + `line` evidence):
+Auto-routes: MCP tools when connected, else CLI. See [docs/skills.md](docs/skills.md).
 
 ```bash
-# After generating a JSON report
-review-mcp post-inline \
-  --owner myorg \
-  --github-repo myrepo \
-  --pr 42 \
-  --commit abc123def456 \
-  --report-file report.json
-
-# Or inline during review
-review-mcp review --base main --head HEAD \
-  --pr 42 --owner myorg --github-repo myrepo \
-  --post-inline --output json -f report
+review-mcp capabilities
 ```
 
 ## GitHub Action
 
 ```yaml
-- uses: simhanson123/review-mcp/action.yml@v1.3.0
+- uses: simhanson123/review-mcp/action.yml@v1.3.2
   with:
     output-format: all
     post-comment: "true"
@@ -100,40 +87,32 @@ review-mcp review --base main --head HEAD \
     fail-on-blocker: "true"
 ```
 
-## Agent Skill (Claude Code + Grok/Codex)
-
-Copy `skills/review-mcp/` into your project:
+## CLI
 
 ```bash
-# Claude Code
-cp -r skills/review-mcp .claude/skills/review-mcp
-
-# Grok / Codex
-cp -r skills/review-mcp .grok/skills/review-mcp
+review-mcp review --base main --head HEAD --static-only
+review-mcp review --base main --head HEAD --output all -f report
+review-mcp index
+review-mcp capabilities
 ```
 
-Then invoke:
-
-```
-/review-mcp
-/review-mcp --branch my-feature
-/review-mcp --with-ai
-```
-
-The skill **auto-routes**: uses MCP tools when connected (`review_pr`), otherwise falls back to `run-review-auto.sh` / CLI. See [docs/skills.md](docs/skills.md).
+## Ollama (Local AI Review)
 
 ```bash
-review-mcp capabilities   # routing hint for agents
+ollama pull qwen2.5-coder:7b
+REVIEW_MCP_PROVIDER=ollama review-mcp review --base main --head HEAD
 ```
 
-## MCP Client Config
+## MCP (optional integration)
+
+For Cursor, Claude Desktop, or other MCP hosts:
 
 ```json
 {
   "mcpServers": {
     "review-mcp": {
-      "command": "npx",
-      "args": ["-y", "review-mcp", "mcp"],
+      "command": "review-mcp",
+      "args": ["mcp"],
       "cwd": "/path/to/your/repo"
     }
   }

@@ -1,9 +1,9 @@
 ---
 name: review-mcp
 description: >-
-  Context-first PR review using review-mcp: CI weakening, security boundaries,
+  Maintainer PR review for open-source repos: CI weakening, security boundaries,
   duplicate utilities, test coverage gaps. Auto-selects MCP or CLI. Use before
-  merge, on PRs, or /review-mcp.
+  merge, on PRs, or /review-mcp. Not MCP-only — primary maintainer review skill.
 when-to-use: >-
   Use for maintainer PR review, AI-generated PR validation, CI workflow changes,
   security boundary checks, or /review-mcp. Prefer over generic code review when
@@ -12,9 +12,9 @@ argument-hint: "[--branch <name> | --base <ref> --head <ref> | --with-ai | --aut
 disable-model-invocation: false
 ---
 
-# review-mcp Skill
+# review-mcp — Maintainer PR Review
 
-Orchestrate **review-mcp** with **automatic MCP/CLI routing**. You coordinate; review-mcp produces evidence-based findings.
+Orchestrate **review-mcp** (maintainer PR review platform) with automatic MCP/CLI routing. You coordinate; the engine produces evidence-based findings. MCP is optional; CLI is the fallback.
 
 ## Auto-routing (default — always follow)
 

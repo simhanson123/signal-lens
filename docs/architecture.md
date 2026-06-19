@@ -2,10 +2,10 @@
 
 ## Overview
 
-`review-mcp` v1.3.0 is a context-first PR review and maintainer automation platform.
+`review-mcp` v1.3.2 is a context-first PR review platform for open-source maintainers.
 
 ```
-GitHub Action / CLI / GitHub App / MCP Server
+Agent Skill / GitHub Action / CLI / MCP (optional) / GitHub App
                     │
                     ▼
            Review Orchestrator

@@ -1,6 +1,6 @@
 # Security
 
-`review-mcp` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v1.1.0.
+`review-mcp` processes PR diffs, workflow files, and repository metadata. This document describes the security model for v1.3.2.
 
 ## Principles
 

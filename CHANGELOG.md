@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.2 — 2026-06-19
+
+### Changed
+- **Branding repositioning** — product is maintainer PR review, not MCP-only tool
+- README rewritten: problem-first, Skill as recommended entry, MCP as optional
+- Updated package description, CLI tagline, OpenAI plan positioning, docs, handover
+- Action/workflow → `@v1.3.2`
+
+### Note
+- Repository slug `review-mcp` unchanged (CLI, npm, Action compatibility)
+
 ## 1.3.1 — 2026-06-19
 
 ### Added
