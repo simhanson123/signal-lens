@@ -1,6 +1,6 @@
 # review-mcp
 
-**MCP-based AI PR review and maintainer automation agent** — v1.3.0
+**MCP-based AI PR review and maintainer automation agent** — v1.3.1
 
 Context-first PR review for open-source maintainers handling AI-generated pull requests.
 
@@ -120,7 +120,11 @@ Then invoke:
 /review-mcp --with-ai
 ```
 
-The skill runs `scripts/run-review.sh` (static analyzers first), then summarizes blockers with evidence. See [docs/skills.md](docs/skills.md).
+The skill **auto-routes**: uses MCP tools when connected (`review_pr`), otherwise falls back to `run-review-auto.sh` / CLI. See [docs/skills.md](docs/skills.md).
+
+```bash
+review-mcp capabilities   # routing hint for agents
+```
 
 ## MCP Client Config
 

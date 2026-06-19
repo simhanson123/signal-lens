@@ -18,11 +18,12 @@ import { draftReleaseNotes, getCurrentReleaseState, listMergedPrs } from "./rele
 import { generateFixDraft } from "./autofix/draft.js";
 import { startMcpServer } from "./mcp/server.js";
 import { postInlineReviewComments } from "./github/inline-comments.js";
+import { buildCapabilitiesReport } from "./capabilities.js";
 import { runReview } from "./orchestrator/review.js";
 
 const program = new Command();
 
-program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.3.0");
+program.name("review-mcp").description("MCP-based AI PR review and maintainer automation agent").version("1.3.1");
 
 program
   .command("review")
@@ -223,6 +224,12 @@ program
   .command("providers")
   .description("List AI providers and availability")
   .action(() => console.log(JSON.stringify(listProviders(), null, 2)));
+
+program
+  .command("capabilities")
+  .description("Report CLI/MCP availability and routing hints for agents")
+  .option("--repo <path>", "Repository root", process.cwd())
+  .action((opts) => console.log(JSON.stringify(buildCapabilitiesReport(opts.repo), null, 2)));
 
 program
   .command("post-inline")

@@ -26,15 +26,32 @@ cp -r path/to/review-mcp/skills/review-mcp/* .grok/skills/review-mcp/
 
 Ensure `review-mcp` is on PATH (`npm install -g review-mcp`) or build from source (`npm run build` → uses `dist/cli.js`).
 
+## Auto-routing (MCP vs CLI)
+
+The skill **auto-selects** the backend:
+
+| Agent has MCP tool `review_pr`? | Backend |
+|--------------------------------|---------|
+| Yes | MCP tools (`review_pr`, `scan_*`, resources) |
+| No | CLI via `run-review-auto.sh` or `run-review.sh` |
+
+Check with:
+
+```bash
+review-mcp capabilities
+```
+
 ## Invoke
 
 ```
-/review-mcp
+/review-mcp                  # auto: MCP if connected, else CLI
 /review-mcp --branch my-feature
 /review-mcp --with-ai
 ```
 
-## Script
+## Scripts
+
+`skills/review-mcp/scripts/run-review-auto.sh` — capabilities + routing hint + CLI review
 
 `skills/review-mcp/scripts/run-review.sh`:
 
