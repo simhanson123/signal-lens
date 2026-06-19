@@ -1,0 +1,6 @@
+{
+  "name": "review-history",
+  "uri": "repo://reviews/history",
+  "description": "Past review results and false-positive feedback records (last 20 entries).",
+  "mimeType": "application/json"
+}

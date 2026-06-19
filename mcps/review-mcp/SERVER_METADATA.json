@@ -1,0 +1,7 @@
+{
+  "name": "review-mcp",
+  "description": "MCP Context Server for context-first PR review and maintainer automation. Provides repository resources, review tools, and maintainer prompts.",
+  "version": "1.2.0",
+  "command": "review-mcp mcp",
+  "repository": "https://github.com/simhanson123/review-mcp"
+}

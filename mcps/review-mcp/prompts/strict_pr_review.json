@@ -1,0 +1,8 @@
+{
+  "name": "strict_pr_review",
+  "description": "Blocker and high-severity issues only. Evidence-based findings with file, line, and symbol references.",
+  "arguments": [
+    { "name": "base", "description": "Base git ref", "required": true },
+    { "name": "head", "description": "Head git ref", "required": true }
+  ]
+}

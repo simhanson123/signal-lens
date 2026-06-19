@@ -2,7 +2,7 @@
 
 ## Overview
 
-`review-mcp` v1.0.0 is a context-first PR review and maintainer automation platform.
+`review-mcp` v1.2.0 is a context-first PR review and maintainer automation platform.
 
 ```
 GitHub Action / CLI / GitHub App / MCP Server
@@ -40,7 +40,7 @@ Diff Collector  Risk Classifier  Context Indexer (Tree-sitter + SQLite)
 | Issue Triage | `src/issue/triage.ts` | Duplicate detection, label recommendations |
 | Release Assistant | `src/release/assistant.ts` | Changelog from merged PRs |
 | Auto-fix Draft | `src/autofix/draft.ts` | Human-approved patch proposals |
-| Providers | `src/providers/` | OpenAI, Anthropic, mock registry |
+| Providers | `src/providers/` | OpenAI, Anthropic, Ollama, mock registry |
 
 ## MCP Interface
 
@@ -52,7 +52,7 @@ Diff Collector  Risk Classifier  Context Indexer (Tree-sitter + SQLite)
 - `repo://release/current`
 
 ### Tools
-- `review_pr`, `scan_ci_weakening`, `find_duplicate_utility`, `trace_security_boundary`
+- `review_pr`, `scan_ci_weakening`, `find_duplicate_utility`, `trace_security_boundary`, `scan_test_coverage`
 - `record_feedback` (write — human approval)
 - `draft_release_notes`
 

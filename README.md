@@ -1,6 +1,6 @@
 # review-mcp
 
-**MCP-based AI PR review and maintainer automation agent** — v1.1.0
+**MCP-based AI PR review and maintainer automation agent** — v1.2.0
 
 Context-first PR review for open-source maintainers handling AI-generated pull requests.
 
@@ -13,7 +13,7 @@ Context-first PR review for open-source maintainers handling AI-generated pull r
 | PR Review | `review-mcp review`, GitHub Action, MCP `review_pr` |
 | Inline Comments | `review-mcp post-inline`, `review --post-inline` |
 | Tree-sitter Index | `review-mcp index` → SQLite symbol + import graph |
-| MCP Server | `review-mcp mcp` — 5 resources, 6 tools, 4 prompts |
+| MCP Server | `review-mcp mcp` — 5 resources, 7 tools, 4 prompts |
 | Issue Triage | `review-mcp triage` |
 | Release Notes | `review-mcp release`, MCP `draft_release_notes` |
 | Auto-fix Draft | `review-mcp fix`, `/review-mcp fix` |

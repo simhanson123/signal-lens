@@ -1,0 +1,14 @@
+{
+  "name": "scan_ci_weakening",
+  "description": "Detect CI weakening patterns: continue-on-error, removed test commands, coverage threshold reductions, lint rule relaxations.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "base": { "type": "string", "description": "Base git ref" },
+      "head": { "type": "string", "description": "Head git ref" }
+    },
+    "required": ["base", "head"],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "symbol-lookup",
+  "uri": "repo://symbols/{name}",
+  "description": "Symbol definition and references for a function, class, or module name.",
+  "mimeType": "application/json"
+}

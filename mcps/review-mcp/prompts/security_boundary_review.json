@@ -1,0 +1,8 @@
+{
+  "name": "security_boundary_review",
+  "description": "Security-focused review: authentication, permissions, secrets, workflow untrusted input.",
+  "arguments": [
+    { "name": "base", "description": "Base git ref", "required": true },
+    { "name": "head", "description": "Head git ref", "required": true }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "release-current",
+  "uri": "repo://release/current",
+  "description": "Current release state, changelog candidates, and draft release notes.",
+  "mimeType": "application/json"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "repo-summary",
+  "uri": "repo://summary",
+  "description": "Repository structure summary: languages, package managers, test frameworks, file counts.",
+  "mimeType": "application/json"
+}

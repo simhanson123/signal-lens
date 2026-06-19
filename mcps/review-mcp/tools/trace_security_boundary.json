@@ -1,0 +1,14 @@
+{
+  "name": "trace_security_boundary",
+  "description": "Trace security boundary regressions: untrusted input in workflows, hardcoded secrets, token/permission misuse.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "base": { "type": "string", "description": "Base git ref" },
+      "head": { "type": "string", "description": "Head git ref" }
+    },
+    "required": ["base", "head"],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

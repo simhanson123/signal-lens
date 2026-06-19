@@ -1,0 +1,12 @@
+{
+  "name": "draft_release_notes",
+  "description": "Draft release notes and changelog from merged PRs in the repository.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "version": { "type": "string", "description": "Target release version (default: unreleased)" }
+    },
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

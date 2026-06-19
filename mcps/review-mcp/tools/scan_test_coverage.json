@@ -1,0 +1,14 @@
+{
+  "name": "scan_test_coverage",
+  "description": "Detect source code changes without corresponding test file updates. Flags new functions and modified logic lacking test coverage.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "base": { "type": "string", "description": "Base git ref" },
+      "head": { "type": "string", "description": "Head git ref" }
+    },
+    "required": ["base", "head"],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

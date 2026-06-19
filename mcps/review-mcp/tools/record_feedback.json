@@ -1,0 +1,15 @@
+{
+  "name": "record_feedback",
+  "description": "Record false-positive, accepted finding, or ignored rule. Write operation — requires human approval before applying.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "findingId": { "type": "string", "description": "Finding ID from a review report" },
+      "type": { "type": "string", "enum": ["false-positive", "accepted", "ignored-rule"], "description": "Feedback type" },
+      "reason": { "type": "string", "description": "Optional reason for the feedback" }
+    },
+    "required": ["findingId", "type"],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

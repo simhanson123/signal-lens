@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 — 2026-06-19
+
+### Added
+- **MCP `scan_test_coverage` tool** — exposes test-coverage analyzer via MCP
+- **Cursor MCP descriptors** — `mcps/review-mcp/` tool/resource/prompt schemas for IDE integration
+- **Korean planning & handover docs** — `docs/planning-ko.md`, `docs/handover-2026-06-19.md`
+
+### Changed
+- MCP server version synced to 1.2.0 (7 tools, 5 resources, 4 prompts)
+- Architecture and OpenAI application docs updated to reflect shipped v1.x scope
+
 ## 1.1.0 — 2026-06-17
 
 ### Added

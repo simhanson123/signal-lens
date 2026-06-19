@@ -1,0 +1,15 @@
+{
+  "name": "review_pr",
+  "description": "Review a PR diff with structured findings including severity, evidence, confidence, and suggested actions. Returns JSON, Markdown, or SARIF.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "base": { "type": "string", "description": "Base git ref (e.g. main)" },
+      "head": { "type": "string", "description": "Head git ref (e.g. HEAD or feature-branch)" },
+      "format": { "type": "string", "enum": ["json", "markdown", "sarif"], "description": "Output format" }
+    },
+    "required": ["base", "head"],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

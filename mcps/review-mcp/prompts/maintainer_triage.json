@@ -1,0 +1,7 @@
+{
+  "name": "maintainer_triage",
+  "description": "Triage issues and PRs by priority, duplication, and missing reproduction info.",
+  "arguments": [
+    { "name": "context", "description": "Issue/PR queue context to triage", "required": true }
+  ]
+}

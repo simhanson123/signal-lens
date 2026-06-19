@@ -1,0 +1,14 @@
+{
+  "name": "find_duplicate_utility",
+  "description": "Find newly added functions or utilities that may duplicate existing symbols in the repository.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "base": { "type": "string", "description": "Base git ref" },
+      "head": { "type": "string", "description": "Head git ref" }
+    },
+    "required": ["base", "head"],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

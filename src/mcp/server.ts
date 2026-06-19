@@ -6,6 +6,7 @@ import { z } from "zod";
 import { ciWeakeningAnalyzer } from "../analyzers/ci-weakening.js";
 import { duplicateUtilityAnalyzer } from "../analyzers/duplicate-utility.js";
 import { securityBoundaryAnalyzer } from "../analyzers/security-boundary.js";
+import { testCoverageAnalyzer } from "../analyzers/test-coverage.js";
 import { loadConfig } from "../config/loader.js";
 import { collectDiff } from "../core/collector.js";
 import { toJson, toMarkdown } from "../core/reporter.js";
@@ -18,7 +19,7 @@ import { runReview } from "../orchestrator/review.js";
 
 export async function startMcpServer(repoRoot = process.cwd()): Promise<void> {
   const config = loadConfig(repoRoot);
-  const server = new McpServer({ name: "review-mcp", version: "1.0.0" });
+  const server = new McpServer({ name: "review-mcp", version: "1.2.0" });
 
   server.resource("repo-summary", "repo://summary", async () => ({
     contents: [{ uri: "repo://summary", mimeType: "application/json", text: JSON.stringify(buildRepoSummary(repoRoot, config), null, 2) }],
@@ -72,6 +73,11 @@ export async function startMcpServer(repoRoot = process.cwd()): Promise<void> {
 
   server.tool("trace_security_boundary", "Trace security boundaries", { base: z.string(), head: z.string() }, async ({ base, head }) => {
     const findings = await securityBoundaryAnalyzer.analyze(collectDiff({ base, head, repoRoot }));
+    return { content: [{ type: "text" as const, text: JSON.stringify(findings, null, 2) }] };
+  });
+
+  server.tool("scan_test_coverage", "Detect source changes without test updates", { base: z.string(), head: z.string() }, async ({ base, head }) => {
+    const findings = await testCoverageAnalyzer.analyze(collectDiff({ base, head, repoRoot }));
     return { content: [{ type: "text" as const, text: JSON.stringify(findings, null, 2) }] };
   });
 

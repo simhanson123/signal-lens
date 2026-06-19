@@ -4,7 +4,7 @@
 
 **Repository:** https://github.com/simhanson123/review-mcp
 
-**Current release:** v1.1.0 (42 tests, 4 fixture scenarios)
+**Current release:** v1.2.0 (43 tests, 4 fixture scenarios)
 
 ## Application Readiness Checklist
 
@@ -13,7 +13,7 @@
 | Public GitHub repository | Done |
 | MIT license | Done |
 | README (problem, install, Action example) | Done |
-| `.github/workflows/review-mcp.yml` | Done (v1.1.0) |
+| `.github/workflows/review-mcp.yml` | Done (v1.2.0) |
 | Fixture review snapshots (3+) | Done (4 scenarios) |
 | `docs/architecture.md` | Done |
 | `docs/security.md` | Done |
@@ -47,11 +47,13 @@ OpenAI's workplace AI fundamentals map directly to how `review-mcp` is designed:
 
 The maintainer's real work task this project improves: **reviewing AI-generated pull requests with less fatigue and more evidence**.
 
-## v1.1.0 Capabilities (Shipped)
+## v1.2.0 Capabilities (Shipped)
 
 - **Ollama provider** — local LLM review without API keys (demonstrates multi-provider design)
 - **Inline PR comments** — line-level findings via `post-inline` / `--post-inline`
 - **Test coverage analyzer** — flags source changes without test updates
+- **MCP `scan_test_coverage`** — test-coverage analyzer exposed as MCP tool
+- **Cursor MCP descriptors** — `mcps/review-mcp/` for IDE tool schema discovery
 - **GitHub Action** — `post-inline-comments` input
 
 ## API Credit Usage Breakdown
@@ -91,4 +93,4 @@ Codex Security will validate:
 2. Submit application at https://developers.openai.com/community/codex-for-oss
 3. Link repository: https://github.com/simhanson123/review-mcp
 4. Use the positioning and usage plan text above in the application form
-5. Mention v1.1.0 release, 42 tests, MCP server, and maintainer automation scope
+5. Mention v1.2.0 release, 43 tests, MCP server, and maintainer automation scope

@@ -1,0 +1,7 @@
+{
+  "name": "release_preparation",
+  "description": "Prepare changelog, breaking changes, migration notes, and compatibility risks.",
+  "arguments": [
+    { "name": "version", "description": "Target release version", "required": true }
+  ]
+}
