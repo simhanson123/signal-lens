@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run signal-lens (read-only analysis)
-        uses: simhanson123/signal-lens/action.yml@v2.0.0
+        uses: simhanson123/signal-lens/action.yml@v2.0.1
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}

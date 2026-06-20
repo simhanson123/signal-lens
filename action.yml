@@ -63,7 +63,7 @@ runs:
 
     - name: Install signal-lens
       shell: bash
-      run: npm install -g signal-lens@2.0.0 || npm install -g .
+      run: npm install -g signal-lens@2.0.1 || npm install -g .
 
     - name: Index repository symbols
       shell: bash

@@ -4,7 +4,7 @@
 
 **Repository:** https://github.com/simhanson123/signal-lens
 
-**Current release:** v2.0.0 (44 tests, 4 fixture scenarios)
+**Current release:** v2.0.1 (44 tests, 4 fixture scenarios)
 
 ## Application Readiness Checklist
 

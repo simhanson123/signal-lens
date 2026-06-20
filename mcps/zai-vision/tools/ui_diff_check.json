@@ -1,0 +1,28 @@
+{
+  "name": "ui_diff_check",
+  "description": "Compare two UI screenshots to identify visual differences and implementation discrepancies.\n\nUse this tool ONLY when the user wants to compare an expected/reference UI with an actual implementation.\nThis tool is specialized for UI quality assurance and design-to-implementation verification.\n\nDo NOT use for: general image comparison, error diagnosis, or analyzing single UIs.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "expected_image_source": {
+        "type": "string",
+        "description": "Local file path or remote URL to the image"
+      },
+      "actual_image_source": {
+        "type": "string",
+        "description": "Local file path or remote URL to the image"
+      },
+      "prompt": {
+        "type": "string",
+        "description": "Instructions for the comparison. Specify what aspects to focus on or what level of detail is needed."
+      }
+    },
+    "required": [
+      "expected_image_source",
+      "actual_image_source",
+      "prompt"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

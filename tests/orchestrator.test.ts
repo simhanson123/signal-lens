@@ -21,7 +21,7 @@ describe("runReview integration", () => {
       noAi: true,
     });
 
-    expect(result.version).toBe("2.0.0");
+    expect(result.version).toBe("2.0.1");
     expect(result.metadata.staticOnly).toBe(true);
     expect(result.metadata.analyzerCount).toBeGreaterThan(0);
   }, 20_000);

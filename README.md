@@ -4,7 +4,7 @@
 
 Catches what diff-only review misses: CI weakening, security boundaries, duplicate utilities, and missing tests — with evidence, not opinions.
 
-**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v2.0.0
+**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v2.0.1
 
 **Repository:** https://github.com/simhanson123/signal-lens
 
@@ -79,7 +79,7 @@ signal-lens capabilities
 ## GitHub Action
 
 ```yaml
-- uses: simhanson123/signal-lens/action.yml@v2.0.0
+- uses: simhanson123/signal-lens/action.yml@v2.0.1
   with:
     output-format: all
     post-comment: "true"

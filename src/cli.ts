@@ -23,7 +23,7 @@ import { runReview } from "./orchestrator/review.js";
 
 const program = new Command();
 
-program.name("signal-lens").description("Signal Lens — context-first maintainer PR review").version("2.0.0");
+program.name("signal-lens").description("Signal Lens — context-first maintainer PR review").version("2.0.1");
 
 program
   .command("review")

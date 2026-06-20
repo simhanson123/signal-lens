@@ -66,7 +66,7 @@ export async function runReview(
 
   const aiStatus = resolveAiStatus(config, options);
   const result: ReviewResult = {
-    version: "2.0.0",
+    version: "2.0.1",
     generatedAt: new Date().toISOString(),
     base: context.base,
     head: context.head,

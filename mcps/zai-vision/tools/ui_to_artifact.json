@@ -1,0 +1,34 @@
+{
+  "name": "ui_to_artifact",
+  "description": "Convert UI screenshots into various artifacts: code, prompts, design specifications, or descriptions.\n\nUse this tool ONLY when the user wants to:\n- Generate frontend code from UI design (output_type='code')\n- Create AI prompts for UI generation (output_type='prompt')\n- Extract design specifications (output_type='spec')\n- Get natural language description of the UI (output_type='description')\n\nDo NOT use for: screenshots containing text/code to extract, error messages, diagrams, or data visualizations.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "image_source": {
+        "type": "string",
+        "description": "Local file path or remote URL to the image"
+      },
+      "output_type": {
+        "type": "string",
+        "enum": [
+          "code",
+          "prompt",
+          "spec",
+          "description"
+        ],
+        "description": "Type of output to generate. Options: 'code' (generate frontend code), 'prompt' (generate AI prompt for recreating this UI), 'spec' (generate design specification document), 'description' (natural language description of the UI)."
+      },
+      "prompt": {
+        "type": "string",
+        "description": "Detailed instructions describing what to generate from this UI image. Should clearly state the desired output and any specific requirements."
+      }
+    },
+    "required": [
+      "image_source",
+      "output_type",
+      "prompt"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}

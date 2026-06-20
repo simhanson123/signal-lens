@@ -1,6 +1,6 @@
 {
   "name": "signal-lens",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Context-first PR review for open-source maintainers (Skill, CLI, Action, optional MCP)",
   "type": "module",
   "bin": {

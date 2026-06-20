@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.1 — 2026-06-20
+
+### Added
+- **Tag-triggered release workflow** — pushing `v*` tags creates GitHub Releases automatically
+- Release notes templates under `.github/release-notes/`
+
+### Changed
+- Action/workflow → `@v2.0.1`
+
 ## 2.0.0 — 2026-06-20
 
 ### Changed

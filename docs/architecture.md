@@ -2,7 +2,7 @@
 
 ## Overview
 
-`signal-lens` v2.0.0 is a context-first PR review platform for open-source maintainers.
+`signal-lens` v2.0.1 is a context-first PR review platform for open-source maintainers.
 
 ```
 Agent Skill / GitHub Action / CLI / MCP (optional) / GitHub App
