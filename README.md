@@ -6,7 +6,8 @@ Catches what diff-only review misses: CI weakening, security boundaries, duplica
 
 **Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v2.0.1
 
-**Repository:** https://github.com/simhanson123/signal-lens
+**Repository:** https://github.com/simhanson123/signal-lens  
+**npm:** https://www.npmjs.com/package/signal-lens
 
 > **Signal Lens** (`signal-lens`) is context-first maintainer PR review — not an MCP-only tool. Slug: CLI, npm, Action, GitHub repo.
 
@@ -42,17 +43,28 @@ AI and agent-generated PRs look clean but hide risks in workflows, tests, and se
 
 Static analyzers run without any API key. For AI review without cloud APIs, use **Ollama**.
 
+## Install
+
+```bash
+npm install -g signal-lens
+signal-lens --version   # 2.0.1
+```
+
 ## Quick Start
 
 ```bash
-# From source (npm package not yet published)
-git clone https://github.com/simhanson123/signal-lens.git
-cd signal-lens && npm install && npm run build
-
 # Index repository symbols
-node dist/cli.js index
+signal-lens index
 
 # Review branch (static — no API key)
+signal-lens review --base main --head HEAD --static-only
+```
+
+From source:
+
+```bash
+git clone https://github.com/simhanson123/signal-lens.git
+cd signal-lens && npm install && npm run build
 node dist/cli.js review --base main --head HEAD --static-only
 ```
 
