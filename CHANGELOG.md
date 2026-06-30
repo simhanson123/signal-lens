@@ -1,5 +1,37 @@
 # Changelog
 
+## 2.1.0 — 2026-06-30
+
+### Added
+- **PR Walkthrough** — high-level summary comment with risk assessment, file changes by area, and key findings (`signal-lens review -o walkthrough`)
+- **Incremental re-review** — `--incremental` flag reviews only files changed since the last review (uses review history)
+- **Custom rules engine** — define project-specific regex rules in `.signal-lens.yml` (`rules.custom`)
+- **Injection analyzer** — detects SQL injection, path traversal, command injection, unsafe deserialization
+- **Multi-language symbol support** — Rust (`.rs`) and Java (`.java`) now indexed; Go/Rust/Java import patterns added
+- **`signal-lens init`** — scaffolds `.signal-lens.yml` with inline documentation
+- **`signal-lens config`** — prints the resolved configuration for debugging
+- **Auto-detect base branch** — `review` without `--base` detects `main`/`master` automatically
+- **JSON Schema** — `docs/signal-lens.schema.json` for IDE autocomplete in `.signal-lens.yml`
+- **SARIF upload step** — `upload-sarif` input in GitHub Action for Code Scanning integration
+- **Docs** — `configuration.md`, `providers.md`, `cli-reference.md`, `troubleshooting.md`
+- **Improvement roadmap** — `docs/improvement-roadmap.md`
+
+### Fixed
+- **Stable finding IDs** — CI-weakening and security-boundary findings now use deterministic IDs (was array-index-based, breaking feedback memory)
+- **AI provider error visibility** — HTTP 401/429/500 and network errors are now surfaced in `metadata.aiSkipReason` (was silently swallowed)
+- **Anthropic model selection** — `ai.model` config is now honored (was ignored, always used Haiku)
+- **Ollama skip tracking** — unreachable Ollama now reports `aiReview: "skipped"` with reason (was reported as "completed")
+- **`Promise.allSettled`** — one analyzer failure no longer aborts the entire review (was `Promise.all`)
+- **zod config validation** — invalid config values now throw descriptive errors (was silently defaulted)
+- **Global error handler** — CLI errors now print friendly messages instead of raw stack traces
+- **Blocker exit message** — `review` exit 1 now explains why
+
+### Changed
+- Version string sourced from `package.json` via `src/core/version.ts` (was hardcoded in 4+ places)
+- Symbol extraction unified in `src/core/diff-symbols.ts` (was triplicated across 3 files)
+- Anthropic `max_tokens` increased from 2048 to 4096
+- `review` `--base`/`--head` are now optional (was `requiredOption`)
+
 ## 2.0.1 — 2026-06-20
 
 ### Added

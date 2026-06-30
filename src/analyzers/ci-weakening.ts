@@ -1,4 +1,5 @@
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
+import { stableFindingId } from "../core/finding-id.js";
 
 const WEAKENING_PATTERNS: Array<{
   pattern: RegExp;
@@ -116,7 +117,7 @@ export const ciWeakeningAnalyzer: Analyzer = {
             if (!rule.pattern.test(line)) continue;
 
             findings.push({
-            id: `ci-${file.path}-${findings.length}`,
+            id: stableFindingId("ci", rule.title, file.path, line.trim()),
             severity: rule.severity,
             category: "ci-weakening",
             title: rule.title,

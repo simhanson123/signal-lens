@@ -1,51 +1,54 @@
-export interface SignalLensConfig {
-  version: number;
-  ai: {
-    enabled: boolean;
-    provider: "openai" | "anthropic" | "ollama" | "mock" | "auto";
-    model: string;
-    perspectives: string[];
-    ollama?: {
-      baseUrl: string;
-    };
-  };
-  analyzers: {
-    "ci-weakening": boolean;
-    "duplicate-utility": boolean;
-    "security-boundary": boolean;
-    "test-coverage": boolean;
-    "ai-review": boolean | "auto";
-  };
-  rules: {
-    architecture: string[];
-  };
-  ignore: {
-    paths: string[];
-  };
-}
+import { z } from "zod";
 
-export const DEFAULT_CONFIG: SignalLensConfig = {
-  version: 1,
-  ai: {
-    enabled: true,
-    provider: "auto",
-    model: "gpt-4o-mini",
-    perspectives: ["security", "architecture", "correctness"],
-    ollama: {
-      baseUrl: "http://localhost:11434",
-    },
-  },
-  analyzers: {
-    "ci-weakening": true,
-    "duplicate-utility": true,
-    "security-boundary": true,
-    "test-coverage": true,
-    "ai-review": "auto",
-  },
-  rules: {
-    architecture: [],
-  },
-  ignore: {
-    paths: ["node_modules/**", "dist/**", "coverage/**"],
-  },
-};
+export const SignalLensConfigSchema = z.object({
+  version: z.number().default(1),
+  ai: z
+    .object({
+      enabled: z.boolean().default(true),
+      provider: z.enum(["openai", "anthropic", "ollama", "mock", "auto"]).default("auto"),
+      model: z.string().default("gpt-4o-mini"),
+      perspectives: z.array(z.string()).default(["security", "architecture", "correctness"]),
+      ollama: z
+        .object({
+          baseUrl: z.string().default("http://localhost:11434"),
+        })
+        .optional(),
+    })
+    .default({}),
+  analyzers: z
+    .object({
+      "ci-weakening": z.boolean().default(true),
+      "duplicate-utility": z.boolean().default(true),
+      "security-boundary": z.boolean().default(true),
+      "injection": z.boolean().default(true),
+      "test-coverage": z.boolean().default(true),
+      "ai-review": z.union([z.boolean(), z.literal("auto")]).default("auto"),
+    })
+    .default({}),
+  rules: z
+    .object({
+      architecture: z.array(z.string()).default([]),
+      custom: z
+        .array(
+          z.object({
+            id: z.string(),
+            pattern: z.string(),
+            severity: z.enum(["blocker", "high", "medium", "low"]).default("medium"),
+            message: z.string(),
+            paths: z.array(z.string()).optional(),
+            onAddedOnly: z.boolean().default(true),
+          })
+        )
+        .default([]),
+    })
+    .default({}),
+  ignore: z
+    .object({
+      paths: z.array(z.string()).default(["node_modules/**", "dist/**", "coverage/**"]),
+    })
+    .default({}),
+});
+
+export type SignalLensConfig = z.infer<typeof SignalLensConfigSchema>;
+
+export const DEFAULT_CONFIG: SignalLensConfig = SignalLensConfigSchema.parse({});

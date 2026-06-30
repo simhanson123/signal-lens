@@ -1,40 +1,14 @@
 import { execSync } from "node:child_process";
 import { loadIndexedSymbols } from "../indexer/tree-sitter.js";
+import { extractDiffSymbols, type DiffSymbol } from "../core/diff-symbols.js";
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
-
-const FUNCTION_PATTERNS = [
-  /^(?:export\s+)?(?:async\s+)?function\s+(\w+)/,
-  /^(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/,
-  /^def\s+(\w+)\s*\(/,
-];
-
-function extractNewSymbols(diff: string): Array<{ name: string; file: string; line: string; bodyHash?: string }> {
-  const symbols: Array<{ name: string; file: string; line: string; bodyHash?: string }> = [];
-  let currentFile = "";
-
-  for (const rawLine of diff.split("\n")) {
-    if (rawLine.startsWith("+++ b/")) {
-      currentFile = rawLine.slice(6);
-      continue;
-    }
-    if (!rawLine.startsWith("+") || rawLine.startsWith("+++")) continue;
-    const line = rawLine.slice(1);
-    for (const pattern of FUNCTION_PATTERNS) {
-      const match = line.match(pattern);
-      if (match?.[1]) {
-        symbols.push({ name: match[1], file: currentFile, line: line.trim() });
-      }
-    }
-  }
-  return symbols;
-}
 
 export const duplicateUtilityAnalyzer: Analyzer = {
   name: "duplicate-utility",
 
   async analyze(context: DiffContext): Promise<Finding[]> {
     const findings: Finding[] = [];
-    const newSymbols = extractNewSymbols(context.diff);
+    const newSymbols = extractDiffSymbols(context.diff);
     const indexed = loadIndexedSymbols(context.repoRoot);
 
     for (const symbol of newSymbols) {
@@ -57,21 +31,19 @@ export const duplicateUtilityAnalyzer: Analyzer = {
         continue;
       }
 
-      const similarBody = indexed.filter((s) => {
+      const similarName = indexed.filter((s) => {
         if (s.file === symbol.file) return false;
-        const nameScore = nameSimilarity(symbol.name, s.name);
-        const hashMatch = symbol.bodyHash && s.bodyHash && symbol.bodyHash === s.bodyHash;
-        return hashMatch || nameScore >= 0.65;
+        return nameSimilarity(symbol.name, s.name) >= 0.65;
       });
 
-      if (similarBody.length > 0) {
-        const top = similarBody[0];
+      if (similarName.length > 0) {
+        const top = similarName[0];
         findings.push({
           id: `dup-similar-${symbol.name}`,
           severity: "low",
           category: "duplicate-utility",
           title: `New "${symbol.name}" may duplicate "${top.name}"`,
-          reason: "Symbol index suggests similar utility already exists in the repository.",
+          reason: "Symbol index suggests a similar utility already exists in the repository.",
           evidence: [
             { file: symbol.file, symbol: symbol.name, snippet: symbol.line },
             { file: top.file, line: top.line, symbol: top.name },
@@ -100,7 +72,7 @@ function nameSimilarity(a: string, b: string): number {
 
 function legacyGrepAnalysis(
   context: DiffContext,
-  newSymbols: Array<{ name: string; file: string; line: string }>
+  newSymbols: DiffSymbol[]
 ): Finding[] {
   const findings: Finding[] = [];
   for (const symbol of newSymbols) {

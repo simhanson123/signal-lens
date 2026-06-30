@@ -1,3 +1,4 @@
+import { extractDiffSymbols } from "../core/diff-symbols.js";
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
 
 const TEST_PATTERNS = [
@@ -28,25 +29,9 @@ function isCodeFile(path: string): boolean {
 }
 
 function extractAddedSymbols(diff: string): Array<{ name: string; file: string }> {
-  const symbols: Array<{ name: string; file: string }> = [];
-  let file = "";
-
-  for (const line of diff.split("\n")) {
-    if (line.startsWith("+++ b/")) {
-      file = line.slice(6);
-      continue;
-    }
-    if (!line.startsWith("+") || line.startsWith("+++")) continue;
-    const content = line.slice(1);
-    const match =
-      content.match(/(?:export\s+)?(?:async\s+)?function\s+(\w+)/) ??
-      content.match(/(?:export\s+)?const\s+(\w+)\s*=/) ??
-      content.match(/def\s+(\w+)\s*\(/);
-    if (match?.[1] && file && isCodeFile(file)) {
-      symbols.push({ name: match[1], file });
-    }
-  }
-  return symbols;
+  return extractDiffSymbols(diff)
+    .filter((s) => isCodeFile(s.file))
+    .map((s) => ({ name: s.name, file: s.file }));
 }
 
 export const testCoverageAnalyzer: Analyzer = {

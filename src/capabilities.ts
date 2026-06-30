@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { listProviders } from "./providers/registry.js";
+import { VERSION } from "./core/version.js";
 
 export const MCP_TOOLS = [
   "review_pr",
@@ -82,7 +83,7 @@ export function buildCapabilitiesReport(repoRoot = process.cwd()): CapabilitiesR
   const skillScript = "bash <skill-dir>/scripts/run-review.sh --static-only";
 
   return {
-    version: "2.0.1",
+    version: VERSION,
     cli: {
       available: cliPath !== null,
       resolvedPath: cliPath,

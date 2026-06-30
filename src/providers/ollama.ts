@@ -1,5 +1,6 @@
 import type { Finding } from "../core/types.js";
-import type { AiProvider, AiReviewRequest, AiReviewResponse } from "./types.js";
+import type { AiProvider, AiProviderError, AiReviewRequest, AiReviewResponse } from "./types.js";
+import { httpError, NETWORK_ERROR } from "./http-error.js";
 
 const DEFAULT_BASE = "http://localhost:11434";
 const SYSTEM_PROMPT = `You are a maintainer-level PR reviewer. Return ONLY JSON: {"findings":[...]}
@@ -29,16 +30,19 @@ export class OllamaProvider implements AiProvider {
     }
 
     const allFindings: Finding[] = [];
+    let firstError: AiProviderError | undefined;
 
     for (const perspective of request.perspectives) {
-      const findings = await this.callPerspective(baseUrl, model, request, perspective);
-      allFindings.push(...findings);
+      const result = await this.callPerspective(baseUrl, model, request, perspective);
+      allFindings.push(...result.findings);
+      if (!firstError && result.error) firstError = result.error;
     }
 
     return {
       findings: dedupe(allFindings),
       skipped: false,
       model: `ollama/${model}`,
+      error: firstError,
     };
   }
 
@@ -56,7 +60,7 @@ export class OllamaProvider implements AiProvider {
     model: string,
     request: AiReviewRequest,
     perspective: string
-  ): Promise<Finding[]> {
+  ): Promise<{ findings: Finding[]; error?: AiProviderError }> {
     const diff =
       request.context.diff.length > 8000
         ? request.context.diff.slice(0, 8000) + "\n... [truncated]"
@@ -86,13 +90,13 @@ export class OllamaProvider implements AiProvider {
       });
 
       if (!res.ok) {
-        return [];
+        return { findings: [], error: httpError(res.status) };
       }
 
       const data = (await res.json()) as { message?: { content?: string } };
-      return parseFindings(data.message?.content ?? '{"findings":[]}', perspective);
+      return { findings: parseFindings(data.message?.content ?? '{"findings":[]}', perspective) };
     } catch {
-      return [];
+      return { findings: [], error: NETWORK_ERROR };
     }
   }
 }

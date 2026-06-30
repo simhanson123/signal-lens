@@ -1,7 +1,9 @@
-import { createAiReviewAnalyzer } from "../analyzers/ai-review.js";
+import { createAiReviewAnalyzer, type AiReviewAnalyzer } from "../analyzers/ai-review.js";
+import { createCustomRulesAnalyzer } from "../analyzers/custom-rules.js";
 import {
   ciWeakeningAnalyzer,
   duplicateUtilityAnalyzer,
+  injectionAnalyzer,
   securityBoundaryAnalyzer,
   testCoverageAnalyzer,
 } from "../analyzers/index.js";
@@ -9,7 +11,7 @@ import { loadConfig, shouldRunAiReview } from "../config/loader.js";
 import { collectDiff, collectDiffWithPr } from "../core/collector.js";
 import { buildReviewSummary } from "../core/classifier.js";
 import { filterByFeedback } from "../memory/feedback.js";
-import { saveReviewHistory } from "../memory/history.js";
+import { getLastReviewHead, saveReviewHistory } from "../memory/history.js";
 import { buildRepoSummary } from "../indexer/repo-summary.js";
 import { getAvailableProvider } from "../providers/registry.js";
 import { synthesizeFindings } from "./synthesizer.js";
@@ -20,6 +22,7 @@ import type {
   ReviewOptions,
   ReviewResult,
 } from "../core/types.js";
+import { VERSION } from "../core/version.js";
 
 export async function runReview(
   options: ReviewOptions,
@@ -29,12 +32,20 @@ export async function runReview(
   const repoRoot = options.repoRoot ?? process.cwd();
   const config = loadConfig(repoRoot);
 
+  let baseRef = options.base;
+  if (options.incremental) {
+    const lastHead = getLastReviewHead(repoRoot, options.base);
+    if (lastHead) {
+      baseRef = lastHead;
+    }
+  }
+
   let prContext: PrContext | undefined;
   let context;
 
   if (options.pr) {
     const enriched = await collectDiffWithPr({
-      base: options.base,
+      base: baseRef,
       head: options.head,
       repoRoot,
       pr: options.pr,
@@ -44,7 +55,7 @@ export async function runReview(
     prContext = enriched.prContext;
   } else {
     context = collectDiff({
-      base: options.base,
+      base: baseRef,
       head: options.head,
       repoRoot,
       ignorePaths: config.ignore.paths,
@@ -57,30 +68,60 @@ export async function runReview(
   const analyzers = buildAnalyzers(config, options);
   const allAnalyzers = [...analyzers, ...extraAnalyzers];
 
-  const findingSets = await Promise.all(
+  const settleResults = await Promise.allSettled(
     allAnalyzers.map((analyzer) => analyzer.analyze(context))
   );
 
-  let findings = synthesizeFindings(findingSets.flat());
+  const findingsFromAnalyzers: Finding[] = [];
+  const analyzerErrors: Array<{ analyzer: string; error: string }> = [];
+
+  for (let i = 0; i < settleResults.length; i++) {
+    const result = settleResults[i];
+    if (result.status === "fulfilled") {
+      findingsFromAnalyzers.push(...result.value);
+    } else {
+      analyzerErrors.push({
+        analyzer: allAnalyzers[i].name,
+        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+      });
+    }
+  }
+
+  let findings = synthesizeFindings(findingsFromAnalyzers);
   findings = filterByFeedback(findings, repoRoot);
 
   const aiStatus = resolveAiStatus(config, options);
+  const aiAnalyzer = analyzers.find(
+    (a): a is AiReviewAnalyzer => a.name === "ai-review"
+  );
+  const aiError = aiAnalyzer?.lastError;
+
+  const aiReview: ReviewResult["metadata"]["aiReview"] = aiError
+    ? "error"
+    : aiAnalyzer?.wasSkipped
+      ? "skipped"
+      : aiStatus.status;
+  const aiSkipReason = aiError
+    ? `AI provider error (${aiError.status}): ${aiError.message}`
+    : aiAnalyzer?.skipReason ?? aiStatus.reason;
   const result: ReviewResult = {
-    version: "2.0.1",
+    version: VERSION,
     generatedAt: new Date().toISOString(),
     base: context.base,
     head: context.head,
     summary,
     findings,
+    changedFiles: context.changedFiles,
     pr: prContext,
     metadata: {
       analyzerCount: allAnalyzers.length,
       durationMs: Date.now() - start,
-      aiReview: aiStatus.status,
-      aiSkipReason: aiStatus.reason,
-      staticOnly: aiStatus.status !== "completed",
+      aiReview,
+      aiSkipReason,
+      staticOnly: aiReview !== "completed",
       provider: aiStatus.provider,
       repoContextUsed: true,
+      analyzerErrors: analyzerErrors.length > 0 ? analyzerErrors : undefined,
     },
   };
 
@@ -97,10 +138,15 @@ function buildAnalyzers(
   if (config.analyzers["ci-weakening"]) analyzers.push(ciWeakeningAnalyzer);
   if (config.analyzers["duplicate-utility"]) analyzers.push(duplicateUtilityAnalyzer);
   if (config.analyzers["security-boundary"]) analyzers.push(securityBoundaryAnalyzer);
+  if (config.analyzers["injection"]) analyzers.push(injectionAnalyzer);
   if (config.analyzers["test-coverage"]) analyzers.push(testCoverageAnalyzer);
 
   if (shouldRunAiReview(config) && !options.noAi) {
     analyzers.push(createAiReviewAnalyzer(config));
+  }
+
+  if (config.rules.custom && config.rules.custom.length > 0) {
+    analyzers.push(createCustomRulesAnalyzer(config.rules.custom));
   }
 
   return analyzers;

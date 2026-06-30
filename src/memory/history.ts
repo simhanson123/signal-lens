@@ -66,3 +66,9 @@ export function loadReviewHistory(repoRoot: string, limit = 20): ReviewHistoryEn
     createdAt: r.created_at,
   }));
 }
+
+export function getLastReviewHead(repoRoot: string, baseRef: string): string | null {
+  const history = loadReviewHistory(repoRoot, 20);
+  const match = history.find((h) => h.baseRef === baseRef);
+  return match?.headRef ?? null;
+}

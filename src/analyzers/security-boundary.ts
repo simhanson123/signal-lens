@@ -1,4 +1,5 @@
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
+import { stableFindingId } from "../core/finding-id.js";
 
 const SECURITY_PATTERNS: Array<{
   pattern: RegExp;
@@ -106,7 +107,7 @@ export const securityBoundaryAnalyzer: Analyzer = {
         if (!rule.pattern.test(line)) continue;
 
         findings.push({
-          id: `sec-${file}-${findings.length}`,
+          id: stableFindingId("sec", rule.title, file, line.trim()),
           severity: rule.severity,
           category: "security-boundary",
           title: rule.title,

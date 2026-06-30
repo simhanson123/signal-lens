@@ -8,12 +8,18 @@ export interface AiReviewRequest {
   ollamaBaseUrl?: string;
 }
 
+export interface AiProviderError {
+  status: number | string;
+  message: string;
+}
+
 export interface AiReviewResponse {
   findings: Finding[];
   skipped: boolean;
   skipReason?: string;
   model?: string;
   tokensUsed?: number;
+  error?: AiProviderError;
 }
 
 export interface AiProvider {

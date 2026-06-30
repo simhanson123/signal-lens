@@ -8,6 +8,9 @@ const IMPORT_PATTERNS = [
   /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
   /^import\s+(\S+)/gm,
   /^from\s+(\S+)\s+import/gm,
+  /^import\s+"([^"]+)"/gm,
+  /^use\s+([\w:]+)/gm,
+  /^import\s+([\w.]+);/gm,
 ];
 
 export function extractImports(filePath: string, repoRoot: string): string[] {

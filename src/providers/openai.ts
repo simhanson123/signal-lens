@@ -1,5 +1,6 @@
 import type { Finding } from "../core/types.js";
-import type { AiProvider, AiReviewRequest, AiReviewResponse } from "./types.js";
+import type { AiProvider, AiProviderError, AiReviewRequest, AiReviewResponse } from "./types.js";
+import { httpError, NETWORK_ERROR } from "./http-error.js";
 
 const SYSTEM_PROMPT = `You are a maintainer-level PR reviewer. Return ONLY JSON: {"findings":[...]}
 Each finding: severity (blocker|high|medium|low), category, title, reason, suggestedAction, confidence (0-1), evidence ([{file,line?,snippet?}]).
@@ -23,11 +24,13 @@ export class OpenAiProvider implements AiProvider {
 
     const allFindings: Finding[] = [];
     let tokensUsed = 0;
+    let firstError: AiProviderError | undefined;
 
     for (const perspective of request.perspectives) {
       const response = await this.callPerspective(request, perspective);
       tokensUsed += response.tokens ?? 0;
       allFindings.push(...response.findings);
+      if (!firstError && response.error) firstError = response.error;
     }
 
     return {
@@ -35,13 +38,14 @@ export class OpenAiProvider implements AiProvider {
       skipped: false,
       model: request.model,
       tokensUsed,
+      error: firstError,
     };
   }
 
   private async callPerspective(
     request: AiReviewRequest,
     perspective: string
-  ): Promise<{ findings: Finding[]; tokens: number }> {
+  ): Promise<{ findings: Finding[]; tokens: number; error?: AiProviderError }> {
     const userPrompt = buildUserPrompt(request, perspective);
 
     try {
@@ -63,7 +67,7 @@ export class OpenAiProvider implements AiProvider {
       });
 
       if (!response.ok) {
-        return { findings: [], tokens: 0 };
+        return { findings: [], tokens: 0, error: httpError(response.status) };
       }
 
       const data = (await response.json()) as {
@@ -76,7 +80,7 @@ export class OpenAiProvider implements AiProvider {
 
       return { findings, tokens: data.usage?.total_tokens ?? 0 };
     } catch {
-      return { findings: [], tokens: 0 };
+      return { findings: [], tokens: 0, error: NETWORK_ERROR };
     }
   }
 }

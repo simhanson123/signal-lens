@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Signal Lens Configuration",
+  "description": "Configuration for signal-lens PR review tool",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "default": 1,
+      "description": "Configuration schema version"
+    },
+    "ai": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable AI-powered review"
+        },
+        "provider": {
+          "type": "string",
+          "enum": ["auto", "openai", "anthropic", "ollama", "mock"],
+          "default": "auto",
+          "description": "AI provider to use. 'auto' picks the first available provider."
+        },
+        "model": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "Model name. Honored by OpenAI and Ollama. Anthropic uses ANTHROPIC_MODEL env or this value."
+        },
+        "perspectives": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["security", "architecture", "correctness"],
+          "description": "Review perspectives. Each triggers a separate AI call."
+        },
+        "ollama": {
+          "type": "object",
+          "properties": {
+            "baseUrl": {
+              "type": "string",
+              "default": "http://localhost:11434",
+              "description": "Ollama API base URL"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "analyzers": {
+      "type": "object",
+      "properties": {
+        "ci-weakening": { "type": "boolean", "default": true },
+        "duplicate-utility": { "type": "boolean", "default": true },
+        "security-boundary": { "type": "boolean", "default": true },
+        "test-coverage": { "type": "boolean", "default": true },
+        "ai-review": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "enum": ["auto"] }
+          ],
+          "default": "auto",
+          "description": "Enable AI review. 'auto' runs only if a provider key is available."
+        }
+      },
+      "additionalProperties": false
+    },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "architecture": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Project-specific rules passed to the AI reviewer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ignore": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["node_modules/**", "dist/**", "coverage/**"],
+          "description": "Glob patterns for files to exclude from analysis"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

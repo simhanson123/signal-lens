@@ -19,8 +19,10 @@ AI and agent-generated PRs look clean but hide risks in workflows, tests, and se
 |------|------------------------|
 | CI weakening | `continue-on-error`, removed tests, coverage drops |
 | Security boundaries | Untrusted input in workflows, hardcoded secrets |
+| Injection risks | SQL injection, path traversal, command injection, unsafe deserialization |
 | Duplicate utilities | New helpers vs existing symbols (Tree-sitter index) |
 | Test gaps | Source changes without test updates |
+| Custom rules | Project-specific regex patterns via `.signal-lens.yml` |
 
 ## Features
 
@@ -28,6 +30,8 @@ AI and agent-generated PRs look clean but hide risks in workflows, tests, and se
 |------|---------------------|
 | **Agent Skill** | `/signal-lens` — Claude Code + Grok/Codex (auto MCP or CLI) |
 | **PR Review** | `signal-lens review`, GitHub Action |
+| **PR Walkthrough** | `signal-lens review -o walkthrough` — risk-level summary |
+| **Incremental** | `signal-lens review --incremental` — only changed files since last review |
 | **Inline Comments** | `signal-lens post-inline`, `review --post-inline` |
 | **Tree-sitter Index** | `signal-lens index` → SQLite symbol + import graph |
 | **Issue Triage** | `signal-lens triage` |
@@ -53,11 +57,14 @@ signal-lens --version   # 2.0.1
 ## Quick Start
 
 ```bash
-# Index repository symbols
-signal-lens index
+# Generate a config file (optional — defaults work without one)
+signal-lens init
 
-# Review branch (static — no API key)
-signal-lens review --base main --head HEAD --static-only
+# Review current branch (base auto-detected as main/master)
+signal-lens review --static-only
+
+# Review with AI (set OPENAI_API_KEY or use Ollama)
+signal-lens review
 ```
 
 From source:
@@ -97,16 +104,21 @@ signal-lens capabilities
     post-comment: "true"
     post-inline-comments: "true"
     fail-on-blocker: "true"
+    upload-sarif: "true"        # Upload to GitHub Code Scanning
 ```
 
 ## CLI
 
 ```bash
-signal-lens review --base main --head HEAD --static-only
-signal-lens review --base main --head HEAD --output all -f report
-signal-lens index
-signal-lens capabilities
+signal-lens review                              # Auto-detects base branch
+signal-lens review --base main --head HEAD -o all -f report
+signal-lens init                                # Create .signal-lens.yml
+signal-lens config                              # Show resolved configuration
+signal-lens index                               # Build symbol index
+signal-lens providers                           # Check AI provider availability
 ```
+
+See [CLI Reference](docs/cli-reference.md) for all commands.
 
 ## Ollama (Local AI Review)
 
@@ -147,10 +159,14 @@ npm run build
 
 ## Documentation
 
+- [Configuration](docs/configuration.md)
+- [AI Providers](docs/providers.md)
+- [CLI Reference](docs/cli-reference.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [Agent Skills](docs/skills.md)
 - [Architecture](docs/architecture.md)
 - [Security](docs/security.md)
-- [OpenAI Codex for OSS Plan](docs/openai-codex-for-oss-plan.md)
+- [Improvement Roadmap](docs/improvement-roadmap.md)
 - [Changelog](CHANGELOG.md)
 
 ## License

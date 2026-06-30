@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { toSarif } from "./sarif.js";
+import { toWalkthrough } from "./walkthrough.js";
 import type { Finding, ReviewResult } from "./types.js";
 
 const SEVERITY_ORDER = ["blocker", "high", "medium", "low"] as const;
@@ -103,18 +104,20 @@ export function toJson(result: ReviewResult): string {
 
 export function writeOutput(
   result: ReviewResult,
-  format: "markdown" | "json" | "sarif" | "both" | "all",
+  format: "markdown" | "json" | "sarif" | "both" | "all" | "walkthrough",
   outputFile?: string
-): { markdown?: string; json?: string; sarif?: string } {
+): { markdown?: string; json?: string; sarif?: string; walkthrough?: string } {
   const markdown = format === "markdown" || format === "both" || format === "all" ? toMarkdown(result) : undefined;
   const json = format === "json" || format === "both" || format === "all" ? toJson(result) : undefined;
   const sarif = format === "sarif" || format === "all" ? toSarif(result) : undefined;
+  const walkthrough = format === "walkthrough" ? toWalkthrough(result) : undefined;
 
   if (outputFile) {
     const base = outputFile.replace(/\.[^.]+$/, "");
     if (format === "json") writeFileSync(outputFile, json!, "utf-8");
     else if (format === "markdown") writeFileSync(outputFile, markdown!, "utf-8");
     else if (format === "sarif") writeFileSync(outputFile, sarif!, "utf-8");
+    else if (format === "walkthrough") writeFileSync(outputFile, walkthrough!, "utf-8");
     else if (format === "both") {
       writeFileSync(`${base}.md`, markdown!, "utf-8");
       writeFileSync(`${base}.json`, json!, "utf-8");
@@ -125,5 +128,5 @@ export function writeOutput(
     }
   }
 
-  return { markdown, json, sarif };
+  return { markdown, json, sarif, walkthrough };
 }

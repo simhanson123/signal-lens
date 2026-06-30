@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { resetDatabase } from "../src/memory/database.js";
 import { runReview } from "../src/orchestrator/review.js";
+import { VERSION } from "../src/core/version.js";
 
 const STORE = resolve(process.cwd(), ".signal-lens");
 
@@ -21,7 +22,7 @@ describe("runReview integration", () => {
       noAi: true,
     });
 
-    expect(result.version).toBe("2.0.1");
+    expect(result.version).toBe(VERSION);
     expect(result.metadata.staticOnly).toBe(true);
     expect(result.metadata.analyzerCount).toBeGreaterThan(0);
   }, 20_000);

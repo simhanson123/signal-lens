@@ -38,6 +38,10 @@ inputs:
     description: "GitHub token for posting comments"
     required: false
     default: "${{ github.token }}"
+  upload-sarif:
+    description: "Upload SARIF results to GitHub Code Scanning (requires security-events: write permission)"
+    required: false
+    default: "false"
 
 outputs:
   report-path:
@@ -152,3 +156,10 @@ runs:
           --pr "${{ github.event.pull_request.number }}" \
           --commit "$HEAD_SHA" \
           --report-file "$JSON_PATH"
+
+    - name: Upload SARIF to Code Scanning
+      if: inputs.upload-sarif == 'true' && always()
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.output-file }}.sarif
+        category: signal-lens

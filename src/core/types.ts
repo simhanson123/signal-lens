@@ -64,7 +64,7 @@ export interface ReviewSummary {
   ciStatus?: string;
 }
 
-export type AiReviewStatus = "completed" | "skipped" | "disabled";
+export type AiReviewStatus = "completed" | "skipped" | "disabled" | "error";
 
 export interface ReviewResult {
   version: string;
@@ -73,6 +73,7 @@ export interface ReviewResult {
   head: string;
   summary: ReviewSummary;
   findings: Finding[];
+  changedFiles?: ChangedFile[];
   pr?: PrContext;
   metadata: {
     analyzerCount: number;
@@ -82,6 +83,7 @@ export interface ReviewResult {
     staticOnly: boolean;
     provider?: string;
     repoContextUsed?: boolean;
+    analyzerErrors?: Array<{ analyzer: string; error: string }>;
   };
 }
 
@@ -96,10 +98,11 @@ export interface ReviewOptions {
   base: string;
   head: string;
   repoRoot?: string;
-  output?: "markdown" | "json" | "sarif" | "both" | "all";
+  output?: "markdown" | "json" | "sarif" | "both" | "all" | "walkthrough";
   outputFile?: string;
   noAi?: boolean;
   pr?: ReviewPrOptions;
+  incremental?: boolean;
 }
 
 export interface Analyzer {
