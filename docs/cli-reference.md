@@ -12,6 +12,8 @@ signal-lens review -o walkthrough               # High-level PR summary comment
 signal-lens review --incremental                # Only files changed since last review
 signal-lens review -o json -f report            # Output JSON to report.json
 signal-lens review --post-inline --owner OWNER --github-repo REPO --pr 12
+signal-lens review --apply-labels --owner OWNER --github-repo REPO --pr 12
+signal-lens review --notify https://hooks.slack.com/services/...
 ```
 
 | Flag | Default | Description |
@@ -28,6 +30,8 @@ signal-lens review --post-inline --owner OWNER --github-repo REPO --pr 12
 | `--github-repo <repo>` | — | GitHub repo name |
 | `--post-inline` | — | Post inline PR comments |
 | `--max-inline <n>` | 20 | Max inline comments |
+| `--apply-labels` | — | Apply `signal-lens:*` labels to the PR |
+| `--notify <url>` | — | Send summary to Slack/Discord webhook on blocker/high |
 
 Exit code: `1` if blocker findings, `0` otherwise.
 
@@ -130,6 +134,34 @@ signal-lens post-inline \
   --commit <sha> \
   -f report.json
 ```
+
+## `signal-lens label`
+
+Apply `signal-lens:*` labels to a GitHub PR based on review findings.
+
+```bash
+signal-lens label \
+  --owner OWNER \
+  --github-repo REPO \
+  --pr 12 \
+  -f report.json
+```
+
+Labels: `signal-lens:blocker`, `signal-lens:security`, `signal-lens:ci`,
+`signal-lens:test-gap`, `signal-lens:custom`, `signal-lens:clean`.
+
+## `signal-lens trends`
+
+Show review quality trends from review history.
+
+```bash
+signal-lens trends                    # Markdown table
+signal-lens trends -o json            # JSON for dashboards
+signal-lens trends --limit 100        # Analyze last 100 reviews
+```
+
+Metrics: finding count trend, category distribution, false-positive rate,
+AI vs static ratio, average duration.
 
 ## `signal-lens mcp`
 

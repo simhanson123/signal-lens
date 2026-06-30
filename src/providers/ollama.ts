@@ -32,8 +32,10 @@ export class OllamaProvider implements AiProvider {
     const allFindings: Finding[] = [];
     let firstError: AiProviderError | undefined;
 
-    for (const perspective of request.perspectives) {
-      const result = await this.callPerspective(baseUrl, model, request, perspective);
+    const results = await Promise.all(
+      request.perspectives.map((p) => this.callPerspective(baseUrl, model, request, p))
+    );
+    for (const result of results) {
       allFindings.push(...result.findings);
       if (!firstError && result.error) firstError = result.error;
     }

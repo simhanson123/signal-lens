@@ -2,8 +2,10 @@ import { createAiReviewAnalyzer, type AiReviewAnalyzer } from "../analyzers/ai-r
 import { createCustomRulesAnalyzer } from "../analyzers/custom-rules.js";
 import {
   ciWeakeningAnalyzer,
+  dependencyVulnAnalyzer,
   duplicateUtilityAnalyzer,
   injectionAnalyzer,
+  secretEntropyAnalyzer,
   securityBoundaryAnalyzer,
   testCoverageAnalyzer,
 } from "../analyzers/index.js";
@@ -11,6 +13,7 @@ import { loadConfig, shouldRunAiReview } from "../config/loader.js";
 import { collectDiff, collectDiffWithPr } from "../core/collector.js";
 import { buildReviewSummary } from "../core/classifier.js";
 import { filterByFeedback } from "../memory/feedback.js";
+import { filterByIgnoreComments } from "../core/ignore-comments.js";
 import { getLastReviewHead, saveReviewHistory } from "../memory/history.js";
 import { buildRepoSummary } from "../indexer/repo-summary.js";
 import { getAvailableProvider } from "../providers/registry.js";
@@ -89,6 +92,7 @@ export async function runReview(
 
   let findings = synthesizeFindings(findingsFromAnalyzers);
   findings = filterByFeedback(findings, repoRoot);
+  findings = filterByIgnoreComments(findings, context.diff);
 
   const aiStatus = resolveAiStatus(config, options);
   const aiAnalyzer = analyzers.find(
@@ -139,7 +143,9 @@ function buildAnalyzers(
   if (config.analyzers["duplicate-utility"]) analyzers.push(duplicateUtilityAnalyzer);
   if (config.analyzers["security-boundary"]) analyzers.push(securityBoundaryAnalyzer);
   if (config.analyzers["injection"]) analyzers.push(injectionAnalyzer);
+  if (config.analyzers["secret-entropy"]) analyzers.push(secretEntropyAnalyzer);
   if (config.analyzers["test-coverage"]) analyzers.push(testCoverageAnalyzer);
+  if (config.analyzers["dependency-vuln"]) analyzers.push(dependencyVulnAnalyzer);
 
   if (shouldRunAiReview(config) && !options.noAi) {
     analyzers.push(createAiReviewAnalyzer(config));

@@ -82,6 +82,35 @@ describe("OpenAiProvider", () => {
     expect(response.error?.status).toBe("network");
   });
 
+  it("runs perspectives concurrently", async () => {
+    process.env.OPENAI_API_KEY = "fake-key";
+    let active = 0;
+    let maxConcurrent = 0;
+
+    global.fetch = vi.fn().mockImplementation(async () => {
+      active++;
+      maxConcurrent = Math.max(maxConcurrent, active);
+      await new Promise((r) => setTimeout(r, 30));
+      active--;
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          choices: [{ message: { content: '{"findings":[]}' } }],
+          usage: { total_tokens: 1 },
+        }),
+      };
+    });
+
+    const provider = new OpenAiProvider();
+    await provider.review({
+      ...mockContext(),
+      perspectives: ["security", "architecture", "correctness"],
+    });
+
+    expect(maxConcurrent).toBeGreaterThan(1);
+  });
+
   it("lists providers via registry", () => {
     const providers = listProviders();
     expect(providers.some((p) => p.name === "openai")).toBe(true);
@@ -126,5 +155,31 @@ describe("AnthropicProvider model selection", () => {
     const response = await provider.review(mockContext());
 
     expect(response.error?.status).toBe(429);
+  });
+
+  it("runs perspectives concurrently", async () => {
+    process.env.ANTHROPIC_API_KEY = "fake-key";
+    let active = 0;
+    let maxConcurrent = 0;
+
+    global.fetch = vi.fn().mockImplementation(async () => {
+      active++;
+      maxConcurrent = Math.max(maxConcurrent, active);
+      await new Promise((r) => setTimeout(r, 30));
+      active--;
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ content: [{ text: "[]" }] }),
+      };
+    });
+
+    const provider = new AnthropicProvider();
+    await provider.review({
+      ...mockContext(),
+      perspectives: ["security", "architecture", "correctness"],
+    });
+
+    expect(maxConcurrent).toBeGreaterThan(1);
   });
 });

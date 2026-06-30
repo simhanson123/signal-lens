@@ -54,7 +54,17 @@
         "ci-weakening": { "type": "boolean", "default": true },
         "duplicate-utility": { "type": "boolean", "default": true },
         "security-boundary": { "type": "boolean", "default": true },
+        "injection": { "type": "boolean", "default": true },
+        "secret-entropy": { "type": "boolean", "default": true },
         "test-coverage": { "type": "boolean", "default": true },
+        "dependency-vuln": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "enum": ["auto"] }
+          ],
+          "default": "auto",
+          "description": "Check new dependencies against the OSV database. 'auto' only runs if network is available."
+        },
         "ai-review": {
           "oneOf": [
             { "type": "boolean" },

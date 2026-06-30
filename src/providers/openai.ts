@@ -26,8 +26,10 @@ export class OpenAiProvider implements AiProvider {
     let tokensUsed = 0;
     let firstError: AiProviderError | undefined;
 
-    for (const perspective of request.perspectives) {
-      const response = await this.callPerspective(request, perspective);
+    const responses = await Promise.all(
+      request.perspectives.map((p) => this.callPerspective(request, p))
+    );
+    for (const response of responses) {
       tokensUsed += response.tokens ?? 0;
       allFindings.push(...response.findings);
       if (!firstError && response.error) firstError = response.error;

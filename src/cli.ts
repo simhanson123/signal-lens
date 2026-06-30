@@ -20,6 +20,11 @@ import { draftReleaseNotes, getCurrentReleaseState, listMergedPrs } from "./rele
 import { generateFixDraft } from "./autofix/draft.js";
 import { startMcpServer } from "./mcp/server.js";
 import { postInlineReviewComments } from "./github/inline-comments.js";
+import { applyReviewLabels } from "./github/labeler.js";
+import { sendNotification, shouldNotify } from "./notifications/webhook.js";
+import { computeTrends, formatTrendsMarkdown, formatTrendsJson } from "./core/trends.js";
+import { loadReviewHistory } from "./memory/history.js";
+import { loadFeedback } from "./memory/feedback.js";
 import { buildCapabilitiesReport } from "./capabilities.js";
 import { runReview } from "./orchestrator/review.js";
 import { VERSION } from "./core/version.js";
@@ -43,6 +48,8 @@ program
   .option("--github-repo <repo>", "GitHub repo name (with --pr)")
   .option("--post-inline", "Post inline PR comments for findings with file+line evidence")
   .option("--max-inline <n>", "Max inline comments to post", (v) => Number(v))
+  .option("--apply-labels", "Apply signal-lens labels to the PR (requires --pr)")
+  .option("--notify <url>", "Send finding summary to a Slack/Discord webhook URL")
   .action(async (opts) => {
     const format = opts.output as "markdown" | "json" | "sarif" | "both" | "all" | "walkthrough";
     const base = opts.base ?? detectDefaultBranch(opts.repo);
@@ -82,6 +89,26 @@ program
       console.error(
         JSON.stringify({ inlineComments: inline }, null, 2)
       );
+    }
+
+    if (opts.applyLabels && opts.pr && opts.owner && opts.githubRepo) {
+      const labels = await applyReviewLabels({
+        owner: opts.owner,
+        repo: opts.githubRepo,
+        prNumber: opts.pr,
+        result,
+      });
+      console.error(JSON.stringify({ appliedLabels: labels }, null, 2));
+    }
+
+    const webhookUrl = opts.notify ?? process.env.SIGNAL_LENS_WEBHOOK_URL;
+    if (webhookUrl && shouldNotify(result)) {
+      try {
+        await sendNotification(webhookUrl, result);
+        console.error("  Webhook notification sent.");
+      } catch (err) {
+        console.error(`  Webhook notification failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
 
     const hasBlocker = result.findings.some((f) => f.severity === "blocker");
@@ -291,6 +318,42 @@ program
     process.exit(result.errors.length > 0 && result.posted === 0 ? 1 : 0);
   });
 
+program
+  .command("label")
+  .description("Apply signal-lens labels to a GitHub PR based on review findings")
+  .requiredOption("--owner <owner>", "GitHub owner")
+  .requiredOption("--github-repo <repo>", "GitHub repo name")
+  .requiredOption("--pr <number>", "Pull request number", (v) => Number(v))
+  .requiredOption("-f, --report-file <path>", "Review JSON report file")
+  .action(async (opts) => {
+    const labels = await applyReviewLabels({
+      owner: opts.owner,
+      repo: opts.githubRepo,
+      prNumber: opts.pr,
+      reportFile: opts.reportFile,
+    });
+    console.log(JSON.stringify({ appliedLabels: labels }, null, 2));
+  });
+
+program
+  .command("trends")
+  .description("Show review quality trends from review history")
+  .option("--repo <path>", "Repository root", process.cwd())
+  .option("-o, --output <format>", "markdown|json", "markdown")
+  .option("--limit <n>", "Number of recent reviews to analyze", (v) => Number(v))
+  .action((opts) => {
+    const limit = opts.limit ?? 50;
+    const history = loadReviewHistory(opts.repo, limit);
+    const feedback = loadFeedback(opts.repo);
+    const report = computeTrends(history, feedback);
+
+    if (opts.output === "json") {
+      console.log(formatTrendsJson(report));
+    } else {
+      console.log(formatTrendsMarkdown(report));
+    }
+  });
+
 function resolveCommitSha(repoRoot: string, ref: string): string {
   if (/^[0-9a-f]{40}$/i.test(ref)) return ref;
   try {
@@ -320,7 +383,10 @@ analyzers:
   ci-weakening: true       # Detects continue-on-error, removed tests, coverage drops
   duplicate-utility: true  # Finds functions that duplicate existing symbols
   security-boundary: true  # Checks for injection, hardcoded secrets, permission issues
+  injection: true          # Detects SQL/path/command injection, unsafe deserialization
+  secret-entropy: true     # Flags high-entropy strings in key-like variable names
   test-coverage: true      # Warns when source changes lack test updates
+  dependency-vuln: auto    # Checks new deps against OSV database (auto = network-dependent)
   ai-review: auto          # true | false | auto (runs only if a provider key is set)
 
 rules:

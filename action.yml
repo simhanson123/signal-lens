@@ -30,6 +30,14 @@ inputs:
     description: "Post inline comments on specific lines (findings with file+line evidence)"
     required: false
     default: "false"
+  apply-labels:
+    description: "Apply signal-lens:* labels to the PR based on findings (requires issues: write permission)"
+    required: false
+    default: "false"
+  notify-webhook:
+    description: "Slack/Discord webhook URL to send finding summaries (notified only on blocker/high findings)"
+    required: false
+    default: ""
   fail-on-blocker:
     description: "Fail the review step when blocker findings are detected"
     required: false
@@ -67,7 +75,7 @@ runs:
 
     - name: Install signal-lens
       shell: bash
-      run: npm install -g signal-lens@2.0.1 || npm install -g .
+      run: npm install -g signal-lens@2.2.0 || npm install -g .
 
     - name: Index repository symbols
       shell: bash
@@ -163,3 +171,51 @@ runs:
       with:
         sarif_file: ${{ inputs.output-file }}.sarif
         category: signal-lens
+
+    - name: Apply PR labels
+      if: inputs.apply-labels == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        JSON_PATH: ${{ inputs.output-file }}.json
+      run: |
+        if [ ! -f "$JSON_PATH" ]; then
+          echo "No JSON report at $JSON_PATH — skipping labels"
+          exit 0
+        fi
+        signal-lens label \
+          --owner "${{ github.repository_owner }}" \
+          --github-repo "${{ github.event.repository.name }}" \
+          --pr "${{ github.event.pull_request.number }}" \
+          --report-file "$JSON_PATH"
+
+    - name: Notify webhook
+      if: inputs.notify-webhook != '' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        SIGNAL_LENS_WEBHOOK_URL: ${{ inputs.notify-webhook }}
+        JSON_PATH: ${{ inputs.output-file }}.json
+      run: |
+        if [ ! -f "$JSON_PATH" ]; then
+          echo "No JSON report — skipping webhook"
+          exit 0
+        fi
+        node -e "
+          const fs = require('fs');
+          const r = JSON.parse(fs.readFileSync(process.env.JSON_PATH, 'utf8'));
+          const hasBH = r.findings.some(f => f.severity === 'blocker' || f.severity === 'high');
+          if (!hasBH) { console.log('No blocker/high findings — skipping webhook'); process.exit(0); }
+          const url = process.env.SIGNAL_LENS_WEBHOOK_URL;
+          const isSlack = url.includes('hooks.slack.com');
+          const risk = r.findings.some(f => f.severity === 'blocker') ? '🔴 Blocker' : '🟠 High';
+          const top = r.findings.slice(0, 5).map(f => '[' + f.severity.toUpperCase() + '] ' + f.title);
+          const body = isSlack
+            ? { blocks: [
+                { type: 'header', text: { type: 'plain_text', text: 'Signal Lens: ' + risk } },
+                { type: 'section', text: { type: 'mrkdwn', text: top.map(t => '• ' + t).join('\n') } }
+              ]}
+            : { embeds: [{ title: 'Signal Lens: ' + risk, color: 0xe74c3c, description: top.map(t => '• ' + t).join('\n') }] };
+          fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+            .then(res => { if (!res.ok) process.exit(1); console.log('Webhook sent'); })
+            .catch(() => process.exit(1));
+        "

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.2.0 — 2026-07-01
+
+### Added
+- **Inline ignore comments** — suppress findings via `// signal-lens-ignore-next-line`, `// signal-lens-disable`, `// signal-lens-enable` in source code
+- **PR auto-labeling** — automatically add/remove `signal-lens:*` labels based on review findings (`signal-lens label`, `review --apply-labels`, Action `apply-labels` input)
+- **Secret entropy scanner** — detects hardcoded secrets by calculating Shannon entropy on string literals assigned to key-like variable names (`secret-entropy` analyzer)
+- **Dependency vulnerability check** — checks added dependencies against the OSV database (`dependency-vuln` analyzer, network-dependent, fails gracefully offline)
+- **Slack/Discord notifications** — sends finding summaries to webhooks on blocker/high findings (`review --notify <url>`, `SIGNAL_LENS_WEBHOOK_URL`, Action `notify-webhook` input)
+- **Review quality trends** — tracks finding counts, category distribution, false-positive rate, AI vs static ratio, and average duration from review history (`signal-lens trends`)
+
+### Changed
+- AI providers now run all perspectives concurrently via `Promise.all` (3x speedup for multi-perspective reviews)
+- Action includes `apply-labels` and `notify-webhook` inputs
+
 ## 2.1.0 — 2026-06-30
 
 ### Added

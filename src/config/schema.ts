@@ -22,6 +22,8 @@ export const SignalLensConfigSchema = z.object({
       "security-boundary": z.boolean().default(true),
       "injection": z.boolean().default(true),
       "test-coverage": z.boolean().default(true),
+      "secret-entropy": z.boolean().default(true),
+      "dependency-vuln": z.union([z.boolean(), z.literal("auto")]).default("auto"),
       "ai-review": z.union([z.boolean(), z.literal("auto")]).default("auto"),
     })
     .default({}),

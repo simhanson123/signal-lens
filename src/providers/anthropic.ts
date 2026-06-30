@@ -21,50 +21,17 @@ export class AnthropicProvider implements AiProvider {
     }
 
     const model = request.model || process.env.ANTHROPIC_MODEL || DEFAULT_MODEL;
-    const perspectives = request.perspectives;
+
+    const results = await Promise.all(
+      request.perspectives.map((p) => this.callPerspective(model, request, p))
+    );
+
     const allFindings: Finding[] = [];
     let firstError: AiProviderError | undefined;
 
-    for (const perspective of perspectives) {
-      try {
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": process.env.ANTHROPIC_API_KEY!,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model,
-            max_tokens: 4096,
-            messages: [
-              {
-                role: "user",
-                content: `You are a ${perspective} PR reviewer. Return JSON array of findings with severity, category, title, reason, suggestedAction, confidence, evidence.\n\nDiff:\n${request.context.diff.slice(0, 8000)}`,
-              },
-            ],
-          }),
-        });
-
-        if (!response.ok) {
-          if (!firstError) firstError = httpError(response.status);
-          continue;
-        }
-
-        const data = (await response.json()) as {
-          content?: Array<{ text?: string }>;
-        };
-        const text = data.content?.[0]?.text ?? "[]";
-        try {
-          const parsed = JSON.parse(text) as Finding[] | { findings: Finding[] };
-          const findings = Array.isArray(parsed) ? parsed : parsed.findings ?? [];
-          allFindings.push(...findings.map((f, i) => ({ ...f, id: f.id ?? `anthropic-${perspective}-${i}`, category: f.category ?? perspective })));
-        } catch {
-          // skip malformed
-        }
-      } catch {
-        if (!firstError) firstError = NETWORK_ERROR;
-      }
+    for (const result of results) {
+      allFindings.push(...result.findings);
+      if (!firstError && result.error) firstError = result.error;
     }
 
     return {
@@ -73,5 +40,56 @@ export class AnthropicProvider implements AiProvider {
       model,
       error: firstError,
     };
+  }
+
+  private async callPerspective(
+    model: string,
+    request: AiReviewRequest,
+    perspective: string
+  ): Promise<{ findings: Finding[]; error?: AiProviderError }> {
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.ANTHROPIC_API_KEY!,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 4096,
+          messages: [
+            {
+              role: "user",
+              content: `You are a ${perspective} PR reviewer. Return JSON array of findings with severity, category, title, reason, suggestedAction, confidence, evidence.\n\nDiff:\n${request.context.diff.slice(0, 8000)}`,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        return { findings: [], error: httpError(response.status) };
+      }
+
+      const data = (await response.json()) as {
+        content?: Array<{ text?: string }>;
+      };
+      const text = data.content?.[0]?.text ?? "[]";
+      try {
+        const parsed = JSON.parse(text) as Finding[] | { findings: Finding[] };
+        const findings = Array.isArray(parsed) ? parsed : parsed.findings ?? [];
+        return {
+          findings: findings.map((f, i) => ({
+            ...f,
+            id: f.id ?? `anthropic-${perspective}-${i}`,
+            category: f.category ?? perspective,
+          })),
+        };
+      } catch {
+        return { findings: [] };
+      }
+    } catch {
+      return { findings: [], error: NETWORK_ERROR };
+    }
   }
 }

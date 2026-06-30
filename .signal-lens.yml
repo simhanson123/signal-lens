@@ -18,7 +18,10 @@ analyzers:
   ci-weakening: true
   duplicate-utility: true
   security-boundary: true
+  injection: true
+  secret-entropy: true
   test-coverage: true
+  dependency-vuln: auto
   ai-review: auto
 
 rules:
