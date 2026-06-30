@@ -2,9 +2,9 @@
 
 **Context-first maintainer PR review for open-source repos**
 
-Catches what diff-only review misses: CI weakening, security boundaries, duplicate utilities, and missing tests — with evidence, not opinions.
+Catches what diff-only review misses: CI weakening, security boundaries, injection risks, hardcoded secrets, duplicate utilities, missing tests, and vulnerable dependencies — with evidence, not opinions.
 
-**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v2.0.1
+**Surfaces:** Agent Skill · CLI · GitHub Action · MCP (optional) — v2.2.0
 
 **Repository:** https://github.com/simhanson123/signal-lens  
 **npm:** https://www.npmjs.com/package/signal-lens
@@ -20,6 +20,8 @@ AI and agent-generated PRs look clean but hide risks in workflows, tests, and se
 | CI weakening | `continue-on-error`, removed tests, coverage drops |
 | Security boundaries | Untrusted input in workflows, hardcoded secrets |
 | Injection risks | SQL injection, path traversal, command injection, unsafe deserialization |
+| Secret entropy | High-entropy strings in key-like variable names (Shannon entropy) |
+| Dependency vulnerabilities | New deps checked against the OSV database |
 | Duplicate utilities | New helpers vs existing symbols (Tree-sitter index) |
 | Test gaps | Source changes without test updates |
 | Custom rules | Project-specific regex patterns via `.signal-lens.yml` |
@@ -33,6 +35,10 @@ AI and agent-generated PRs look clean but hide risks in workflows, tests, and se
 | **PR Walkthrough** | `signal-lens review -o walkthrough` — risk-level summary |
 | **Incremental** | `signal-lens review --incremental` — only changed files since last review |
 | **Inline Comments** | `signal-lens post-inline`, `review --post-inline` |
+| **Auto-Labeling** | `signal-lens label`, `review --apply-labels` — `signal-lens:*` labels on PR |
+| **Ignore Comments** | `// signal-lens-ignore-next-line`, `// signal-lens-disable` in source |
+| **Notifications** | `review --notify <url>` — Slack/Discord on blocker/high findings |
+| **Review Trends** | `signal-lens trends` — metrics from review history |
 | **Tree-sitter Index** | `signal-lens index` → SQLite symbol + import graph |
 | **Issue Triage** | `signal-lens triage` |
 | **Release Notes** | `signal-lens release` |
@@ -51,7 +57,7 @@ Static analyzers run without any API key. For AI review without cloud APIs, use 
 
 ```bash
 npm install -g signal-lens
-signal-lens --version   # 2.0.1
+signal-lens --version   # 2.2.0
 ```
 
 ## Quick Start
@@ -98,13 +104,15 @@ signal-lens capabilities
 ## GitHub Action
 
 ```yaml
-- uses: simhanson123/signal-lens/action.yml@v2.0.1
+- uses: simhanson123/signal-lens/action.yml@v2.2.0
   with:
     output-format: all
     post-comment: "true"
     post-inline-comments: "true"
+    apply-labels: "true"          # Auto-label PRs with signal-lens:*
+    notify-webhook: ""            # Slack/Discord webhook URL
     fail-on-blocker: "true"
-    upload-sarif: "true"        # Upload to GitHub Code Scanning
+    upload-sarif: "true"          # Upload to GitHub Code Scanning
 ```
 
 ## CLI
@@ -112,9 +120,11 @@ signal-lens capabilities
 ```bash
 signal-lens review                              # Auto-detects base branch
 signal-lens review --base main --head HEAD -o all -f report
+signal-lens review --apply-labels --notify $WEBHOOK_URL --pr 12
 signal-lens init                                # Create .signal-lens.yml
 signal-lens config                              # Show resolved configuration
 signal-lens index                               # Build symbol index
+signal-lens trends                              # Review quality metrics
 signal-lens providers                           # Check AI provider availability
 ```
 

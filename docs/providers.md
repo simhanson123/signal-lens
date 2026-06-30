@@ -17,7 +17,7 @@ Signal Lens supports multiple AI providers for the AI review layer. Static analy
 signal-lens review --base main --head HEAD --static-only
 ```
 
-Runs all four static analyzers. No API key, no cost.
+Runs all static analyzers (CI weakening, security boundaries, injection, secret entropy, dependency vulnerabilities, duplicate utilities, test coverage). No API key, no cost.
 
 ## OpenAI
 
@@ -69,6 +69,10 @@ If Ollama is not running, the review still completes with static analysis only. 
 | `ai.model` in config | Used | Used | Used |
 | Env override | — | `ANTHROPIC_MODEL` | `OLLAMA_MODEL` |
 | Default | `gpt-4o-mini` | `claude-3-5-haiku-20241022` | `qwen2.5-coder:7b` |
+
+## Parallel perspectives
+
+All providers run review perspectives **concurrently** via `Promise.all`. With the default 3 perspectives (security, architecture, correctness), this gives a ~3x speedup over sequential calls. Token usage and error collection are preserved.
 
 ## Error handling
 

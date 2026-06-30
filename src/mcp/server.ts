@@ -16,10 +16,11 @@ import { recordFeedback } from "../memory/feedback.js";
 import { loadReviewHistory } from "../memory/history.js";
 import { draftReleaseNotes, getCurrentReleaseState, listMergedPrs } from "../release/assistant.js";
 import { runReview } from "../orchestrator/review.js";
+import { VERSION } from "../core/version.js";
 
 export async function startMcpServer(repoRoot = process.cwd()): Promise<void> {
   const config = loadConfig(repoRoot);
-  const server = new McpServer({ name: "signal-lens", version: "2.0.1" });
+  const server = new McpServer({ name: "signal-lens", version: VERSION });
 
   server.resource("repo-summary", "repo://summary", async () => ({
     contents: [{ uri: "repo://summary", mimeType: "application/json", text: JSON.stringify(buildRepoSummary(repoRoot, config), null, 2) }],

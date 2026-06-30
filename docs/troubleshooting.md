@@ -81,4 +81,20 @@ Tests run with `fileParallelism: false` to avoid this. If you see it in producti
 
 ## `npm install -g signal-lens` fails in GitHub Action
 
-The Action falls back to installing from source. For reliability, use the Action's `@v2.0.1` tag rather than global npm install.
+The Action falls back to installing from source. For reliability, use the Action's `@v2.2.0` tag rather than global npm install.
+
+## Dependency vulnerability analyzer shows no results
+
+The `dependency-vuln` analyzer only checks **newly added** dependencies in `package.json`, `requirements.txt`, `go.mod`, or `Cargo.toml`. Existing dependencies are not re-checked. It requires network access to query the OSV database (`api.osv.dev`); if the network is unavailable, it silently skips.
+
+Set `"dependency-vuln": false` in `.signal-lens.yml` to disable it entirely.
+
+## Ignore comments not working
+
+Ensure the comment is on an **added** line in the diff (not a pre-existing line), and uses the exact syntax:
+
+- `// signal-lens-ignore-next-line` — suppresses the next line
+- `// signal-lens-disable` — suppresses all findings in the file
+- `// signal-lens-enable` — re-enables after a disable
+
+File-level suppression applies even to findings without a line number. Line-level suppression only works for findings that include `evidence[0].line`.

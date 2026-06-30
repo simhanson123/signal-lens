@@ -30,7 +30,10 @@ analyzers:
   ci-weakening: true           # continue-on-error, removed tests, coverage drops
   duplicate-utility: true       # New functions duplicating existing symbols
   security-boundary: true       # Injection, hardcoded secrets, permission issues
+  injection: true               # SQL/path/command injection, unsafe deserialization
+  secret-entropy: true          # High-entropy strings in key-like variable names
   test-coverage: true           # Source changes without test updates
+  dependency-vuln: auto         # Check new deps against OSV database (auto = network-dependent)
   ai-review: auto               # true | false | auto
 
 rules:
@@ -54,6 +57,7 @@ ignore:
 | `OLLAMA_MODEL` | Override Ollama model (default `qwen2.5-coder:7b`) |
 | `ANTHROPIC_MODEL` | Override Anthropic model (default `claude-3-5-haiku-20241022`) |
 | `GITHUB_TOKEN` / `GH_TOKEN` | PR comments and inline comments |
+| `SIGNAL_LENS_WEBHOOK_URL` | Slack/Discord webhook for finding notifications |
 
 ## Provider auto-detection order
 
@@ -78,3 +82,20 @@ Add this to the top of your `.signal-lens.yml` for validation and autocomplete:
 signal-lens config          # Print resolved configuration
 signal-lens providers       # Show provider availability
 ```
+
+## Inline ignore comments
+
+Suppress findings directly in source code using special comments:
+
+```typescript
+// signal-lens-ignore-next-line — suppresses the finding on the next line
+const apiKey = getApiKey(); // finding suppressed if this line would trigger one
+
+// signal-lens-disable       — suppresses all findings in this file
+// signal-lens-enable        — re-enables findings after a disable
+```
+
+Supported syntax in any language: `//`, `#`, `/* */`.
+
+Variants: `signal-lens-ignore-next-line`, `signal-lens-disable-next-line`,
+`signal-lens-ignore` (all equivalent for next-line suppression).

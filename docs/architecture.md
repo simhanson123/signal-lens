@@ -2,7 +2,7 @@
 
 ## Overview
 
-`signal-lens` v2.0.1 is a context-first PR review platform for open-source maintainers.
+`signal-lens` v2.2.0 is a context-first PR review platform for open-source maintainers.
 
 ```
 Agent Skill / GitHub Action / CLI / MCP (optional) / GitHub App
@@ -10,38 +10,44 @@ Agent Skill / GitHub Action / CLI / MCP (optional) / GitHub App
                     ▼
            Review Orchestrator
                     │
-    ┌───────────────┼───────────────┐
-    ▼               ▼               ▼
-Diff Collector  Risk Classifier  Context Indexer (Tree-sitter + SQLite)
-    │               │               │
-    └───────────────┼───────────────┘
-                    ▼
-         Static Analyzers + Multi-pass AI Providers
-                    │
-                    ▼
-      Synthesizer → Feedback Filter → History Store
-                    │
-                    ▼
-         Markdown / JSON / SARIF Reporter
+     ┌───────────────┼───────────────┐
+     ▼               ▼               ▼
+ Diff Collector  Risk Classifier  Context Indexer (Tree-sitter + SQLite)
+     │               │               │
+     └───────────────┼───────────────┘
+                     ▼
+          Static Analyzers + Multi-pass AI Providers (parallel)
+                     │
+                     ▼
+       Synthesizer → Feedback Filter → Ignore-Comment Filter → History Store
+                     │
+                     ▼
+          Markdown / JSON / SARIF Reporter → Labels / Webhook (optional)
 ```
 
 ## Components
 
 | Component | Path | Role |
 |-----------|------|------|
-| CLI | `src/cli.ts` | review, index, mcp, serve, feedback, release, triage, fix, slash, providers, post-inline |
+| CLI | `src/cli.ts` | review, index, mcp, serve, feedback, release, triage, fix, slash, providers, post-inline, label, trends |
 | Agent Skill | `skills/signal-lens/` | `/signal-lens` for Claude Code + Grok/Codex |
-| GitHub Action | `action.yml` | Read-only review + optional PR comment + SARIF |
+| GitHub Action | `action.yml` | Read-only review + optional PR comment, labels, webhook, SARIF |
 | GitHub App | `src/github/app.ts` | Webhook server for PR events and slash commands |
 | MCP Server | `src/mcp/server.ts` | Full MCP resources, tools, prompts |
 | Tree-sitter Indexer | `src/indexer/tree-sitter.ts` | WASM parsers, symbol SQLite store |
 | Import Graph | `src/indexer/imports.ts` | Module dependency edges |
 | Feedback Memory | `src/memory/feedback.ts` | SQLite false-positive / accepted findings |
 | Review History | `src/memory/history.ts` | SQLite review result archive |
+| Ignore Comments | `src/core/ignore-comments.ts` | Source-level finding suppression |
+| Auto-Labeler | `src/github/labeler.ts` | signal-lens:* PR labels |
+| Notifications | `src/notifications/webhook.ts` | Slack/Discord webhook delivery |
+| Trends | `src/core/trends.ts` | Review quality metrics from history |
+| Secret Entropy | `src/analyzers/secret-entropy.ts` | Shannon entropy secret detection |
+| Dependency Vuln | `src/analyzers/dependency-vuln.ts` | OSV database dependency checks |
 | Issue Triage | `src/issue/triage.ts` | Duplicate detection, label recommendations |
 | Release Assistant | `src/release/assistant.ts` | Changelog from merged PRs |
 | Auto-fix Draft | `src/autofix/draft.ts` | Human-approved patch proposals |
-| Providers | `src/providers/` | OpenAI, Anthropic, Ollama, mock registry |
+| Providers | `src/providers/` | OpenAI, Anthropic, Ollama, mock registry (parallel perspectives) |
 
 ## MCP Interface
 
