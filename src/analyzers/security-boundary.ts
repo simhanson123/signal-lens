@@ -1,5 +1,6 @@
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
 import { stableFindingId } from "../core/finding-id.js";
+import { parseAddedLines } from "../core/diff-lines.js";
 
 const SECURITY_PATTERNS: Array<{
   pattern: RegExp;
@@ -77,42 +78,24 @@ const SECURITY_PATTERNS: Array<{
   },
 ];
 
-function extractAddedContent(diff: string): Array<{ file: string; line: string }> {
-  const results: Array<{ file: string; line: string }> = [];
-  let currentFile = "";
-
-  for (const rawLine of diff.split("\n")) {
-    if (rawLine.startsWith("+++ b/")) {
-      currentFile = rawLine.slice(6);
-      continue;
-    }
-
-    if (rawLine.startsWith("+") && !rawLine.startsWith("+++")) {
-      results.push({ file: currentFile, line: rawLine.slice(1) });
-    }
-  }
-
-  return results;
-}
-
 export const securityBoundaryAnalyzer: Analyzer = {
   name: "security-boundary",
 
   async analyze(context: DiffContext): Promise<Finding[]> {
     const findings: Finding[] = [];
-    const addedContent = extractAddedContent(context.diff);
+    const addedLines = parseAddedLines(context.diff);
 
-    for (const { file, line } of addedContent) {
+    for (const { file, lineNumber, content } of addedLines) {
       for (const rule of SECURITY_PATTERNS) {
-        if (!rule.pattern.test(line)) continue;
+        if (!rule.pattern.test(content)) continue;
 
         findings.push({
-          id: stableFindingId("sec", rule.title, file, line.trim()),
+          id: stableFindingId("sec", rule.title, file, content.trim()),
           severity: rule.severity,
           category: "security-boundary",
           title: rule.title,
           reason: rule.reason,
-          evidence: [{ file, snippet: line.trim() }],
+          evidence: [{ file, line: lineNumber, snippet: content.trim() }],
           suggestedAction: rule.action,
           confidence: rule.confidence,
           repro: `git diff ${context.base}...${context.head} -- ${file}`,

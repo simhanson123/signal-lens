@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "generatedAt": "2026-06-19T18:08:02.135Z",
+  "version": "2.2.0",
+  "generatedAt": "2026-07-01T01:06:08.403Z",
   "base": "main",
   "head": "feature/fixture",
   "summary": {
@@ -20,7 +20,7 @@
   },
   "findings": [
     {
-      "id": "sec-.github/workflows/ai-review.yml-0",
+      "id": "sec-x8py9g",
       "severity": "blocker",
       "category": "security-boundary",
       "title": "Untrusted GitHub event content in workflow",
@@ -28,6 +28,7 @@
       "evidence": [
         {
           "file": ".github/workflows/ai-review.yml",
+          "line": 11,
           "snippet": "run: review-bot --prompt \"${{ github.event.pull_request.body }}\""
         }
       ],

@@ -14,6 +14,7 @@ export const defaultAnalyzers: Analyzer[] = [
   injectionAnalyzer,
   secretEntropyAnalyzer,
   testCoverageAnalyzer,
+  dependencyVulnAnalyzer,
 ];
 
 export { createAiReviewAnalyzer } from "./ai-review.js";

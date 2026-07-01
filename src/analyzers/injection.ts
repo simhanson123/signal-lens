@@ -1,5 +1,6 @@
 import { stableFindingId } from "../core/finding-id.js";
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
+import { parseAddedLines } from "../core/diff-lines.js";
 
 interface InjectionPattern {
   regex: RegExp;
@@ -66,24 +67,19 @@ export const injectionAnalyzer: Analyzer = {
 
   async analyze(context: DiffContext): Promise<Finding[]> {
     const findings: Finding[] = [];
+    const addedLines = parseAddedLines(context.diff);
 
-    for (const rawLine of context.diff.split("\n")) {
-      if (!rawLine.startsWith("+") || rawLine.startsWith("+++")) continue;
-      const file = extractFileFromLine(context.diff, rawLine);
-      if (!file) continue;
-
-      const line = rawLine.slice(1);
-
+    for (const { file, lineNumber, content } of addedLines) {
       for (const rule of INJECTION_PATTERNS) {
-        if (!rule.regex.test(line)) continue;
+        if (!rule.regex.test(content)) continue;
 
         findings.push({
-          id: stableFindingId("inj", rule.title, file, line.trim()),
+          id: stableFindingId("inj", rule.title, file, content.trim()),
           severity: rule.severity,
           category: "injection",
           title: rule.title,
           reason: rule.reason,
-          evidence: [{ file, snippet: line.trim() }],
+          evidence: [{ file, line: lineNumber, snippet: content.trim() }],
           suggestedAction: rule.action,
           confidence: rule.confidence,
           repro: `git diff ${context.base}...${context.head} -- ${file}`,
@@ -94,16 +90,3 @@ export const injectionAnalyzer: Analyzer = {
     return findings;
   },
 };
-
-function extractFileFromLine(diff: string, targetLine: string): string | null {
-  const lines = diff.split("\n");
-  const targetIndex = lines.indexOf(targetLine);
-  if (targetIndex === -1) return null;
-
-  for (let i = targetIndex; i >= 0; i--) {
-    if (lines[i].startsWith("+++ b/")) {
-      return lines[i].slice(6);
-    }
-  }
-  return null;
-}

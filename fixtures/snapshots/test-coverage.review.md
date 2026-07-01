@@ -1,7 +1,7 @@
 ## Signal Lens Report
 
 **Base:** `main` → **Head:** `feature/fixture`
-**Generated:** 2026-06-19T18:08:02.136Z
+**Generated:** 2026-07-01T01:06:08.405Z
 **Mode:** static analysis
 **AI:** skipped — Fixture snapshot — static analysis only
 

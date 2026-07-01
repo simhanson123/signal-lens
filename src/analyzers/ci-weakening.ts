@@ -1,5 +1,6 @@
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
 import { stableFindingId } from "../core/finding-id.js";
+import { parseAddedLines } from "../core/diff-lines.js";
 
 const WEAKENING_PATTERNS: Array<{
   pattern: RegExp;
@@ -98,42 +99,64 @@ export const ciWeakeningAnalyzer: Analyzer = {
 
   async analyze(context: DiffContext): Promise<Finding[]> {
     const findings: Finding[] = [];
-    const ciFiles = context.changedFiles.filter((f) => f.category === "ci");
+    const ciFilePaths = new Set(
+      context.changedFiles.filter((f) => f.category === "ci").map((f) => f.path)
+    );
 
-    for (const file of ciFiles) {
-      const addedLines = extractChangedLines(context.diff, file.path, "added");
-      const removedLines = extractChangedLines(context.diff, file.path, "removed");
+    const addedLines = parseAddedLines(context.diff).filter((l) =>
+      ciFilePaths.has(l.file)
+    );
 
-      const lineSets: Array<{ lines: string[]; removed: boolean }> = [
-        { lines: addedLines, removed: false },
-        { lines: removedLines, removed: true },
-      ];
+    for (const { file, lineNumber, content } of addedLines) {
+      for (const rule of WEAKENING_PATTERNS) {
+        if (rule.removedOnly) continue;
+        if (!rule.pattern.test(content)) continue;
 
-      for (const { lines, removed } of lineSets) {
-        for (const line of lines) {
-          for (const rule of WEAKENING_PATTERNS) {
-            if (rule.removedOnly && !removed) continue;
-            if (!rule.removedOnly && removed) continue;
-            if (!rule.pattern.test(line)) continue;
+        findings.push({
+          id: stableFindingId("ci", rule.title, file, content.trim()),
+          severity: rule.severity,
+          category: "ci-weakening",
+          title: rule.title,
+          reason: rule.reason,
+          evidence: [
+            {
+              file,
+              line: lineNumber,
+              snippet: content.trim(),
+              relatedConfig: "CI/workflow configuration",
+            },
+          ],
+          suggestedAction: rule.action,
+          confidence: 0.85,
+          repro: `git diff ${context.base}...${context.head} -- ${file}`,
+        });
+      }
+    }
 
-            findings.push({
-            id: stableFindingId("ci", rule.title, file.path, line.trim()),
+    for (const filePath of ciFilePaths) {
+      const removedLines = extractChangedLines(context.diff, filePath, "removed");
+      for (const line of removedLines) {
+        for (const rule of WEAKENING_PATTERNS) {
+          if (!rule.removedOnly) continue;
+          if (!rule.pattern.test(line)) continue;
+
+          findings.push({
+            id: stableFindingId("ci", rule.title, filePath, line.trim()),
             severity: rule.severity,
             category: "ci-weakening",
             title: rule.title,
             reason: rule.reason,
             evidence: [
               {
-                file: file.path,
+                file: filePath,
                 snippet: line.trim(),
                 relatedConfig: "CI/workflow configuration",
               },
             ],
             suggestedAction: rule.action,
             confidence: 0.85,
-            repro: `git diff ${context.base}...${context.head} -- ${file.path}`,
-            });
-          }
+            repro: `git diff ${context.base}...${context.head} -- ${filePath}`,
+          });
         }
       }
     }

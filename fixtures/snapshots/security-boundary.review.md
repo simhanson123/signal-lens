@@ -1,7 +1,7 @@
 ## Signal Lens Report
 
 **Base:** `main` → **Head:** `feature/fixture`
-**Generated:** 2026-06-19T18:08:02.135Z
+**Generated:** 2026-07-01T01:06:08.403Z
 **Mode:** static analysis
 **AI:** skipped — Fixture snapshot — static analysis only
 
@@ -14,18 +14,18 @@
 
 #### 🛑 BLOCKER Untrusted GitHub event content in workflow
 
-**ID:** `sec-.github/workflows/ai-review.yml-0` | **Category:** security-boundary | **Confidence:** 95%
+**ID:** `sec-x8py9g` | **Category:** security-boundary | **Confidence:** 95%
 
 PR/issue body or title flows into a workflow expression. This is a prompt/shell injection vector when combined with AI or script execution.
 
 **Evidence:**
-- `.github/workflows/ai-review.yml`
+- `.github/workflows/ai-review.yml:11`
   ```
   run: review-bot --prompt "${{ github.event.pull_request.body }}"
   ```
 
 **Suggested action:** Sanitize or avoid using untrusted event content in run steps, prompts, or shell commands.
-**Follow-up:** `/signal-lens false-positive sec-.github/workflows/ai-review.yml-0` | `/signal-lens fix sec-.github/workflows/ai-review.yml-0` | `/signal-lens explain`
+**Follow-up:** `/signal-lens false-positive sec-x8py9g` | `/signal-lens fix sec-x8py9g` | `/signal-lens explain`
 
 **Verify:** `git diff main...feature/fixture -- .github/workflows/ai-review.yml`
 

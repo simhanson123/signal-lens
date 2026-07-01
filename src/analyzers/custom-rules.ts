@@ -1,5 +1,6 @@
 import { stableFindingId } from "../core/finding-id.js";
 import type { Analyzer, DiffContext, Finding, Severity } from "../core/types.js";
+import { parseAddedLines } from "../core/diff-lines.js";
 
 export interface CustomRule {
   id: string;
@@ -64,20 +65,20 @@ export function createCustomRulesAnalyzer(rules: CustomRule[]): Analyzer {
       if (compiled.length === 0) return [];
 
       const findings: Finding[] = [];
-      const addedLines = extractAddedLines(context.diff);
+      const addedLines = parseAddedLines(context.diff);
 
-      for (const { file, line } of addedLines) {
+      for (const { file, lineNumber, content } of addedLines) {
         for (const rule of compiled) {
           if (rule.pathFilters && !rule.pathFilters.some((f) => f.test(file))) continue;
-          if (!rule.regex.test(line)) continue;
+          if (!rule.regex.test(content)) continue;
 
           findings.push({
-            id: stableFindingId(`custom-${rule.id}`, rule.message, file, line.trim()),
+            id: stableFindingId(`custom-${rule.id}`, rule.message, file, content.trim()),
             severity: rule.severity,
             category: "custom-rule",
             title: rule.message,
             reason: `Custom rule "${rule.id}" matched (pattern: ${rule.regex.source})`,
-            evidence: [{ file, snippet: line.trim() }],
+            evidence: [{ file, line: lineNumber, snippet: content.trim() }],
             suggestedAction: `Fix the issue or adjust rule "${rule.id}" in .signal-lens.yml`,
             confidence: 0.9,
           });
@@ -87,21 +88,4 @@ export function createCustomRulesAnalyzer(rules: CustomRule[]): Analyzer {
       return findings;
     },
   };
-}
-
-function extractAddedLines(diff: string): Array<{ file: string; line: string }> {
-  const results: Array<{ file: string; line: string }> = [];
-  let currentFile = "";
-
-  for (const rawLine of diff.split("\n")) {
-    if (rawLine.startsWith("+++ b/")) {
-      currentFile = rawLine.slice(6);
-      continue;
-    }
-    if (rawLine.startsWith("+") && !rawLine.startsWith("+++")) {
-      results.push({ file: currentFile, line: rawLine.slice(1) });
-    }
-  }
-
-  return results;
 }

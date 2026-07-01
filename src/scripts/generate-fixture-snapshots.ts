@@ -5,6 +5,7 @@ import { duplicateUtilityAnalyzer } from "../analyzers/duplicate-utility.js";
 import { securityBoundaryAnalyzer } from "../analyzers/security-boundary.js";
 import { testCoverageAnalyzer } from "../analyzers/test-coverage.js";
 import { toMarkdown } from "../core/reporter.js";
+import { VERSION } from "../core/version.js";
 import type { DiffContext, ReviewResult } from "../core/types.js";
 
 interface FixtureSnapshot {
@@ -60,7 +61,7 @@ async function main() {
     const findings = await analyzer.analyze(context);
 
     const result: ReviewResult = {
-      version: "0.2.0",
+      version: VERSION,
       generatedAt: new Date().toISOString(),
       base: context.base,
       head: context.head,

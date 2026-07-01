@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "generatedAt": "2026-06-19T18:08:02.066Z",
+  "version": "2.2.0",
+  "generatedAt": "2026-07-01T01:06:08.280Z",
   "base": "main",
   "head": "feature/fixture",
   "summary": {
@@ -20,7 +20,7 @@
   },
   "findings": [
     {
-      "id": "ci-.github/workflows/ci.yml-0",
+      "id": "ci-1fxzolt",
       "severity": "high",
       "category": "ci-weakening",
       "title": "CI step set to continue on error",
@@ -28,6 +28,7 @@
       "evidence": [
         {
           "file": ".github/workflows/ci.yml",
+          "line": 21,
           "snippet": "continue-on-error: true",
           "relatedConfig": "CI/workflow configuration"
         }

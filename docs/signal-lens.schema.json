@@ -84,6 +84,36 @@
           "items": { "type": "string" },
           "default": [],
           "description": "Project-specific rules passed to the AI reviewer"
+        },
+        "custom": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "description": "Unique rule identifier" },
+              "pattern": { "type": "string", "description": "Regex pattern matched against added lines" },
+              "severity": {
+                "type": "string",
+                "enum": ["blocker", "high", "medium", "low"],
+                "default": "medium"
+              },
+              "message": { "type": "string", "description": "Finding title shown to the maintainer" },
+              "paths": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Optional glob patterns to restrict which files the rule applies to"
+              },
+              "onAddedOnly": {
+                "type": "boolean",
+                "default": true,
+                "description": "If true, only match added lines (not context or removed)"
+              }
+            },
+            "required": ["id", "pattern", "message"],
+            "additionalProperties": false
+          },
+          "default": [],
+          "description": "Custom static rules (regex patterns matched against added lines)"
         }
       },
       "additionalProperties": false

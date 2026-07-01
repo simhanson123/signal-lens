@@ -1,9 +1,14 @@
 # Signal Lens — Improvement Roadmap
 
-**Created:** 2026-06-30 · **Base version:** v2.0.1
+**Created:** 2026-06-30 · **Updated:** 2026-07-01 · **Base version:** v2.2.0
 
 This roadmap organizes improvements into three phases, ordered by impact and risk.
 Each item lists the problem, affected files, proposed fix, and verification.
+
+> **Status note (v2.2.0):** All Phase 1 items (1.1–1.9) and all Phase 2 items
+> (2.1–2.8) are **shipped**. Phase 3 items 3.1–3.5 are shipped; 3.6 (data-flow
+> taint analysis) remains long-term. Items below are retained as historical
+> reference for design decisions.
 
 ---
 

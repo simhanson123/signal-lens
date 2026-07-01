@@ -1,5 +1,6 @@
 import { stableFindingId } from "../core/finding-id.js";
 import type { Analyzer, DiffContext, Finding } from "../core/types.js";
+import { parseAddedLines } from "../core/diff-lines.js";
 
 const OSV_BATCH_URL = "https://api.osv.dev/v1/querybatch";
 const OSV_TIMEOUT = 10_000;
@@ -17,6 +18,7 @@ interface ParsedDep {
   ecosystem: string;
   file: string;
   snippet: string;
+  lineNumber: number;
 }
 
 interface OsvVuln {
@@ -27,30 +29,23 @@ interface OsvVuln {
 
 function parseDependencies(diff: string): ParsedDep[] {
   const deps: ParsedDep[] = [];
-  let currentFile = "";
+  const addedLines = parseAddedLines(diff);
 
-  for (const rawLine of diff.split("\n")) {
-    if (rawLine.startsWith("+++ b/")) {
-      currentFile = rawLine.slice(6);
-      continue;
-    }
-    if (!rawLine.startsWith("+") || rawLine.startsWith("+++")) continue;
-
-    const content = rawLine.slice(1);
-    const basename = currentFile.split("/").pop() ?? currentFile;
+  for (const { file, lineNumber, content } of addedLines) {
+    const basename = file.split("/").pop() ?? file;
 
     if (basename === "package.json") {
       const m = content.match(/["']([\w@][\w@./-]*)["']\s*:\s*["']\^?([\d.]+)/);
-      if (m) deps.push({ name: m[1], version: m[2], ecosystem: "npm", file: currentFile, snippet: content.trim() });
+      if (m) deps.push({ name: m[1], version: m[2], ecosystem: "npm", file, lineNumber, snippet: content.trim() });
     } else if (basename === "requirements.txt") {
       const m = content.match(/^([\w-]+)\s*[=<>~!]+\s*([\d.]+)/);
-      if (m) deps.push({ name: m[1], version: m[2], ecosystem: "PyPI", file: currentFile, snippet: content.trim() });
+      if (m) deps.push({ name: m[1], version: m[2], ecosystem: "PyPI", file, lineNumber, snippet: content.trim() });
     } else if (basename === "go.mod") {
       const m = content.match(/^\s*(\S+)\s+v(\d[\d.]*)/);
-      if (m && !m[1].startsWith("//")) deps.push({ name: m[1], version: m[2], ecosystem: "Go", file: currentFile, snippet: content.trim() });
+      if (m && !m[1].startsWith("//")) deps.push({ name: m[1], version: m[2], ecosystem: "Go", file, lineNumber, snippet: content.trim() });
     } else if (basename === "Cargo.toml") {
       const m = content.match(/^(\w[\w-]*)\s*=\s*["']([\d.]+)/);
-      if (m) deps.push({ name: m[1], version: m[2], ecosystem: "crates.io", file: currentFile, snippet: content.trim() });
+      if (m) deps.push({ name: m[1], version: m[2], ecosystem: "crates.io", file, lineNumber, snippet: content.trim() });
     }
   }
 
@@ -138,7 +133,7 @@ export const dependencyVulnAnalyzer: Analyzer = {
         category: "dependency-vuln",
         title: `Vulnerable dependency: ${dep.name}@${dep.version}`,
         reason: `${dep.name}@${dep.version} (${dep.ecosystem}) has ${vulns.length} known vulnerabilit${vulns.length === 1 ? "y" : "ies"}: ${ids}. ${summaries}`,
-        evidence: [{ file: dep.file, snippet: dep.snippet, relatedConfig: dep.ecosystem }],
+        evidence: [{ file: dep.file, line: dep.lineNumber, snippet: dep.snippet, relatedConfig: dep.ecosystem }],
         suggestedAction: `Upgrade ${dep.name} to a version without known vulnerabilities. See https://osv.dev/list?q=${encodeURIComponent(dep.name)} for details.`,
         confidence: 0.9,
       });

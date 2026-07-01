@@ -14,6 +14,10 @@
 - AI providers now run all perspectives concurrently via `Promise.all` (3x speedup for multi-perspective reviews)
 - Action includes `apply-labels` and `notify-webhook` inputs
 
+### Fixed
+- **Line numbers in evidence** — all static analyzers now populate `evidence.line`, enabling inline PR comments and line-level `signal-lens-ignore-next-line` suppression (previously neither feature worked because no analyzer emitted line numbers)
+- Fixture snapshots regenerated with stable finding IDs and current version
+
 ## 2.1.0 — 2026-06-30
 
 ### Added
@@ -74,7 +78,7 @@
 ### Changed
 - **Branding repositioning** — product is maintainer PR review, not MCP-only tool
 - README rewritten: problem-first, Skill as recommended entry, MCP as optional
-- Updated package description, CLI tagline, OpenAI plan positioning, docs, handover
+- Updated package description, CLI tagline, and docs
 - Action/workflow → `@v1.3.2`
 
 ### Note
@@ -106,11 +110,10 @@
 ### Added
 - **MCP `scan_test_coverage` tool** — exposes test-coverage analyzer via MCP
 - **Cursor MCP descriptors** — `mcps/review-mcp/` tool/resource/prompt schemas for IDE integration
-- **Korean planning & handover docs** — `docs/planning-ko.md`, `docs/handover-2026-06-19.md`
 
 ### Changed
 - MCP server version synced to 1.2.0 (7 tools, 5 resources, 4 prompts)
-- Architecture and OpenAI application docs updated to reflect shipped v1.x scope
+- Architecture docs updated to reflect shipped v1.x scope
 
 ## 1.1.0 — 2026-06-17
 

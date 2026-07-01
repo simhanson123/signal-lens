@@ -1,7 +1,7 @@
 ## Signal Lens Report
 
 **Base:** `main` → **Head:** `feature/fixture`
-**Generated:** 2026-06-19T18:08:02.066Z
+**Generated:** 2026-07-01T01:06:08.280Z
 **Mode:** static analysis
 **AI:** skipped — Fixture snapshot — static analysis only
 
@@ -14,18 +14,18 @@
 
 #### 🔴 HIGH CI step set to continue on error
 
-**ID:** `ci-.github/workflows/ci.yml-0` | **Category:** ci-weakening | **Confidence:** 85%
+**ID:** `ci-1fxzolt` | **Category:** ci-weakening | **Confidence:** 85%
 
 A workflow step allows failures without blocking the pipeline, which can hide regressions in agent-generated PRs.
 
 **Evidence:**
-- `.github/workflows/ci.yml`
+- `.github/workflows/ci.yml:21`
   ```
   continue-on-error: true
   ```
 
 **Suggested action:** Remove continue-on-error or scope it to non-critical steps with documented justification.
-**Follow-up:** `/signal-lens false-positive ci-.github/workflows/ci.yml-0` | `/signal-lens fix ci-.github/workflows/ci.yml-0` | `/signal-lens explain`
+**Follow-up:** `/signal-lens false-positive ci-1fxzolt` | `/signal-lens fix ci-1fxzolt` | `/signal-lens explain`
 
 **Verify:** `git diff main...feature/fixture -- .github/workflows/ci.yml`
 

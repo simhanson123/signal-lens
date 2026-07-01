@@ -97,4 +97,4 @@ Ensure the comment is on an **added** line in the diff (not a pre-existing line)
 - `// signal-lens-disable` — suppresses all findings in the file
 - `// signal-lens-enable` — re-enables after a disable
 
-File-level suppression applies even to findings without a line number. Line-level suppression only works for findings that include `evidence[0].line`.
+File-level suppression applies to all findings in the file. Line-level suppression matches findings that include `evidence[0].line` (all static analyzers populate this for added-line findings).
